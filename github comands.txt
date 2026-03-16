@@ -1,0 +1,35 @@
+# GitHub Commands Guide
+
+## Basic Git Workflow
+
+### Stage Changes
+git add .
+
+### Commit Changes
+git commit -m "your update message"
+
+### Push to Remote
+git push
+
+## Common Commands
+
+### Clone a Repository
+git clone <repository-url>
+
+### Check Status
+git status
+
+### View Commit History
+git log
+
+### Create a New Branch
+git branch <branch-name>
+
+### Switch Branches
+git checkout <branch-name>
+
+### Pull Latest Changes
+git pull
+
+### View Differences
+git diff
