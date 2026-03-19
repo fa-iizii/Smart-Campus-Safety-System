@@ -1,12 +1,35 @@
-<table>
-    <thead>
-        <tr>
-            <th>Time</th>
-            <th>Temperature</th>
-            <th>Humidity</th>
-            <th>Fire Exit</th>
-        </tr>
-    </thead>
-    <tbody id="sensor-data">
-        </tbody>
-</table>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCSS | Live IoT Sensors</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="card portal-card" style="max-width: 800px; margin: 40px auto;">
+        <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2>🌡️ Live Campus Sensors</h2>
+            <button onclick="location.href='security.html'" class="secondary-btn" style="width: auto;">⬅ Back to Dashboard</button>
+        </header>
+        
+        <div class="table-container">
+            <table class="iot-table">
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>Temp (°C)</th>
+                        <th>Humidity (%)</th>
+                        <th>Fire Exit Status</th>
+                    </tr>
+                </thead>
+                <tbody id="sensor-data">
+                    <tr><td colspan="4" style="text-align: center;">Waiting for sensor data...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="iot.js"></script>
+</body>
+</html>

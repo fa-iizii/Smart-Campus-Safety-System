@@ -79,3 +79,21 @@ exports.getChatHistory = async (req, res) => {
         res.status(500).json({ error: 'Failed to retrieve chat history.' });
     }
 };
+
+// NEW function to get a list of active users who have chatted with the security team
+exports.getActiveUsers = async (_req, res) => {
+    try {
+        // This query finds all unique users who have an active chat history
+        const [users] = await db.execute(`
+            SELECT DISTINCT u.id, u.username 
+            FROM users u
+            JOIN messages m ON (u.id = m.sender_id OR u.id = m.receiver_id)
+            WHERE u.role = 'user'
+        `);
+        res.status(200).json(users);
+    } catch (error) {
+        console.error("Error fetching active users:", error);
+        res.status(500).json({ error: 'Failed to fetch active users.' });
+    }
+};
+

@@ -1,4 +1,4 @@
-// routes/chatRoutes.js
+// Inside routes/chatRoutes.js
 const express = require('express');
 const router = express.Router();
 const chatController = require('../controllers/chatController');
@@ -12,5 +12,8 @@ router.post('/send', verifyToken, upload.single('image'), chatController.sendMes
 
 // GET route to load the conversation history when they open the app
 router.get('/history', verifyToken, chatController.getChatHistory);
+
+// ADD THIS NEW ROUTE:
+router.get('/active-users', verifyToken, chatController.getActiveUsers);
 
 module.exports = router;

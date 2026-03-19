@@ -18,7 +18,7 @@ async function fetchSensorData() {
             const statusClass = log.door_status === 'OPEN' ? 'status-danger' : 'status-safe';
             
             row.innerHTML = `
-                <td>${new Date(log.timestamp).toLocaleString()}</td>
+                <td>${new Date(log.logged_at).toLocaleString()}</td>
                 <td>${log.temperature}°C</td>
                 <td>${log.humidity}%</td>
                 <td><span class="status-badge ${statusClass}">${log.door_status}</span></td>

@@ -4,7 +4,7 @@ const router = express.Router();
 const iotController = require('../controllers/iotController');
 
 // Import both auth middlewares
-const { verifyIotKey } = require('../middleware/iotAuth'); // For the ESP32 Hardware
+const { verifyIotKey } = require('../middleware/iotauth'); // For the ESP32 Hardware
 const { verifyToken } = require('../middleware/auth');      // For the Web Dashboard
 
 // 1. The POST route (Used by ESP32 to send data)
