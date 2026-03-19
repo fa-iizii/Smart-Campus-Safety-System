@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><title>SCSS | Admin Chat</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="admin-chat-layout">
+        <aside class="sidebar">
+            <h4>Active Reports</h4>
+            <div id="user-list"></div>
+        </aside>
+        <main class="chat-panel">
+            <header><h3>Chat: <span id="target-name">Select a user</span></h3></header>
+            <div id="chat-box" class="chat-box"></div>
+            <div class="input-area">
+                <input type="text" id="msg" placeholder="Type reply...">
+                <button onclick="send()" class="send-btn">Reply</button>
+            </div>
+        </main>
+    </div>
+    <script>
+        let selectedId = null;
+        const token = localStorage.getItem('token');
+
+        async function loadUsers() {
+            const res = await fetch('/api/chat/active-users', { headers: { 'Authorization': `Bearer ${token}` } });
+            const users = await res.json();
+            document.getElementById('user-list').innerHTML = users.map(u => 
+                `<div class="user-item" onclick="selectUser(${u.id}, '${u.username}')">${u.username} (ID: ${u.id})</div>`
+            ).join('');
+        }
+
+        function selectUser(id, name) {
+            selectedId = id;
+            document.getElementById('target-name').innerText = name;
+            loadChat();
+        }
+
+        async function loadChat() {
+            if(!selectedId) return;
+            const res = await fetch('/api/chat/history', { headers: { 'Authorization': `Bearer ${token}` } });
+            const allMsgs = await res.json();
+            // Filter only messages involving the selected user
+            const filtered = allMsgs.filter(m => m.sender_id == selectedId || m.receiver_id == selectedId);
+            const box = document.getElementById('chat-box');
+            box.innerHTML = filtered.map(m => `<div class="msg ${m.sender_name === 'security_admin' ? 'sent' : 'received'}">
+                <p>${m.message_content}</p>
+                ${m.image_path ? `<img src="/${m.image_path}" class="chat-img">` : ''}
+            </div>`).join('');
+        }
+
+        async function send() {
+            if(!selectedId) return alert("Select a user first");
+            const fd = new FormData();
+            fd.append('message_content', document.getElementById('msg').value);
+            fd.append('receiver_id', selectedId);
+            await fetch('/api/chat/send', { method: 'POST', headers: { 'Authorization': `Bearer ${token}` }, body: fd });
+            document.getElementById('msg').value = '';
+            loadChat();
+        }
+        setInterval(loadUsers, 5000); loadUsers();
+        setInterval(loadChat, 3000);
+    </script>
+</body>
+</html>

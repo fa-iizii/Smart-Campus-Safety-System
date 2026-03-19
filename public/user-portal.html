@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><title>SCSS | User Portal</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="card portal-card">
+        <h2>Welcome, <span id="user-name">User</span></h2>
+        <div class="menu-grid">
+            <button onclick="location.href='user-chat.html'" class="menu-btn">💬 Report Incident / Chat</button>
+            <button onclick="logout()" class="logout-btn">Logout</button>
+        </div>
+    </div>
+    <script>
+        document.getElementById('user-name').innerText = localStorage.getItem('username');
+        function logout() { localStorage.clear(); window.location.href = 'login.html'; }
+    </script>
+</body>
+</html>

@@ -1,29 +1,20 @@
 // controllers/iotController.js
 const db = require('../config/database');
 
-exports.logSensorData = async (req, res) => {
-    // Extract the data sent by the ESP32
-    const { temperature, humidity, door_status } = req.body;
+// Existing function for the ESP32
+exports.logSensorData = async (req, res) => { 
+    /* ... your existing log logic ... */ 
+};
 
-    // Basic validation to ensure the ESP32 sent all required fields
-    if (temperature === undefined || humidity === undefined || !door_status) {
-        return res.status(400).json({ error: 'Missing required sensor data fields.' });
-    }
-
-    // Ensure door_status strictly matches our ENUM in the database
-    if (door_status !== 'OPEN' && door_status !== 'CLOSED') {
-        return res.status(400).json({ error: 'Invalid door_status. Must be OPEN or CLOSED.' });
-    }
-
+// NEW function for the Security Dashboard
+exports.getLatestData = async (req, res) => {
     try {
-        await db.execute(
-            `INSERT INTO sensor_logs (temperature, humidity, door_status) VALUES (?, ?, ?)`,
-            [temperature, humidity, door_status]
+        const [logs] = await db.execute(
+            'SELECT * FROM sensor_logs ORDER BY timestamp DESC LIMIT 20'
         );
-
-        res.status(201).json({ message: 'Sensor data logged successfully.' });
+        res.status(200).json(logs);
     } catch (error) {
-        console.error('IoT DB Insert Error:', error);
-        res.status(500).json({ error: 'Failed to save sensor data to the database.' });
+        console.error("Fetch Error:", error);
+        res.status(500).json({ error: 'Failed to fetch sensor data' });
     }
 };

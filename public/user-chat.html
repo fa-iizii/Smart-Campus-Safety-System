@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"><title>SCSS | Chat</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="chat-container">
+        <header>
+            <button onclick="location.href='user-portal.html'">⬅ Back</button>
+            <h3>Security Chat</h3>
+        </header>
+        <div id="chat-box" class="chat-box"></div>
+        <div class="input-area">
+            <input type="text" id="msg" placeholder="Describe the incident...">
+            <input type="file" id="img" style="display:none" onchange="document.getElementById('file-label').innerText = '📎 Attached'">
+            <label for="img" id="file-label" class="file-btn">📷</label>
+            <button onclick="send()" class="send-btn">Send</button>
+        </div>
+    </div>
+    <script>
+        const token = localStorage.getItem('token');
+        async function load() {
+            const res = await fetch('/api/chat/history', { headers: { 'Authorization': `Bearer ${token}` } });
+            const data = await res.json();
+            const box = document.getElementById('chat-box');
+            box.innerHTML = data.map(m => `<div class="msg ${m.sender_name === 'security_admin' ? 'received' : 'sent'}">
+                <p>${m.message_content}</p>
+                ${m.image_path ? `<img src="/${m.image_path}" class="chat-img">` : ''}
+            </div>`).join('');
+            box.scrollTop = box.scrollHeight;
+        }
+        async function send() {
+            const fd = new FormData();
+            fd.append('message_content', document.getElementById('msg').value);
+            if (document.getElementById('img').files[0]) fd.append('image', document.getElementById('img').files[0]);
+            await fetch('/api/chat/send', { method: 'POST', headers: { 'Authorization': `Bearer ${token}` }, body: fd });
+            document.getElementById('msg').value = '';
+            load();
+        }
+        setInterval(load, 3000); load();
+    </script>
+</body>
+</html>
