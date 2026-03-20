@@ -43,6 +43,7 @@ exports.sendMessage = async (req, res) => {
     }
 };
 
+// New function to fetch chat history for the logged-in user
 exports.getChatHistory = async (req, res) => {
     const userId = req.user.id;
     const userRole = req.user.role;
