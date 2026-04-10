@@ -7,7 +7,7 @@ async function sendFakeIoTData() {
     const hum = (Math.random() * (55.0 - 40.0) + 40.0).toFixed(1);  // Between 40 and 55 %
     
     // Simulate someone occasionally opening the fire exit
-    const isDoorOpen = Math.random() > 0.0; 
+    const isDoorOpen = Math.random() > 0.6; 
     const doorStatus = isDoorOpen ? 'OPEN' : 'CLOSED';
 
     try {
@@ -18,7 +18,7 @@ async function sendFakeIoTData() {
                 'x-api-key': 'alpha47_iot_api_key' // Must match your .env
             },
             body: JSON.stringify({
-                device_id: 'ESP32_MAIN_01', // <--- THE NEW MODULAR UPGRADE
+                device_id: 'ESP32_Test_2', // <--- THE NEW MODULAR UPGRADE
                 temperature: parseFloat(temp),
                 humidity: parseFloat(hum),
                 door_status: doorStatus
@@ -26,7 +26,7 @@ async function sendFakeIoTData() {
         });
 
         if (response.ok) {
-            console.log(`📡 Data Sent | Device: ESP32_MAIN_01 | Temp: ${temp}°C | Hum: ${hum}% | Door: ${doorStatus}`);
+            console.log(`📡 Data Sent | Device: ESP32_Test_2 | Temp: ${temp}°C | Hum: ${hum}% | Door: ${doorStatus}`);
         } else {
             const errorData = await response.json();
             console.error('⚠️ Server rejected the data:', errorData.error || errorData.message);

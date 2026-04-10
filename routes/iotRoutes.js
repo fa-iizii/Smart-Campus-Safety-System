@@ -15,3 +15,6 @@ router.get('/data', verifyToken, iotController.getLatestData);
 
 // ALWAYS keep this at the very bottom
 module.exports = router;
+
+// Add this next to your other routes in routes/iotRoutes.js
+router.post('/register', verifyToken, iotController.registerDevice);

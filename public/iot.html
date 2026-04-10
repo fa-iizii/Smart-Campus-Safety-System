@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body style="background-color: #f8fafc; margin: 0;">
-
+<div id="toast-container" class="toast-container"></div>
     <div class="iot-dashboard-container">
         
         <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
@@ -15,9 +15,8 @@
             <button onclick="location.href='security.html'" class="secondary-btn" style="width: auto;">⬅ Back to Dispatch</button>
         </header>
 
-        <div id="alert-banner" class="iot-alert-banner">
-            <span>⚠️ EMERGENCY: A Fire Exit Door has been opened!</span>
-            <button onclick="document.getElementById('alert-banner').style.display='none'" style="background: none; border: 1px solid white; color: white; padding: 5px 10px; cursor: pointer; border-radius: 4px;">Acknowledge</button>
+        <div style="display: flex; justify-content: flex-end; margin-bottom: 15px;">
+             <button onclick="toggleModal(true)" style="background: #2563eb; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold;">+ Register New Sensor</button>
         </div>
 
         <div class="iot-top-controls">
@@ -63,5 +62,59 @@
     </div>
 
     <script src="iot.js"></script>
+
+<div id="reg-modal" class="iot-modal-overlay">
+    <div class="iot-modal">
+        <h3>Register New Sensor</h3>
+        <div class="iot-form-group">
+            <label>Hardware Device ID</label>
+            <input type="text" id="reg-id" placeholder="e.g., ESP32_LIB_02">
+        </div>
+        <div class="iot-form-group">
+            <label>Friendly Device Name</label>
+            <input type="text" id="reg-name" placeholder="e.g., Secondary Fire Exit">
+        </div>
+        <div class="iot-form-group">
+            <label>Location (University Building)</label>
+            <select id="reg-loc">
+                <option value="">-- Select a Building --</option>
+                <option value="3M Buckley Innovation Centre (BIC)">3M Buckley Innovation Centre (BIC)</option>
+                <option value="Atkinson Holt (AH)">Atkinson Holt (AH)</option>
+                <option value="Brontë Lecture Theatres (BL)">Brontë Lecture Theatres (BL)</option>
+                <option value="Charles Sikes Building (CS)">Charles Sikes Building (CS)</option>
+                <option value="Barbara Hepworth Building (BH)">Barbara Hepworth Building (BH)</option>
+                <option value="Cockcroft Building (CO)">Cockcroft Building (CO)</option>
+                <option value="Harold Wilson Building (HW)">Harold Wilson Building (HW)</option>
+                <option value="Haslett Building (HA)">Haslett Building (HA)</option>
+                <option value="Jo Cox More In Common Centre (JC)">Jo Cox More In Common Centre (JC)</option>
+                <option value="Joseph Priestley East Building (JPE)">Joseph Priestley East Building (JPE)</option>
+                <option value="Joseph Priestley South Building (JPS)">Joseph Priestley South Building (JPS)</option>
+                <option value="Joseph Priestley West Building (JPW)">Joseph Priestley West Building (JPW)</option>
+                <option value="Lockside Building (LS)">Lockside Building (LS)</option>
+                <option value="Media, Journalism and Film Building (JM)">Media, Journalism and Film Building (JM)</option>
+                <option value="Oastler Building (OA)">Oastler Building (OA)</option>
+                <option value="Queen St. Building (QSB)">Queen St. Building (QSB)</option>
+                <option value="Percy Shaw House (SH)">Percy Shaw House (SH)</option>
+                <option value="Ramsden Building (R)">Ramsden Building (R)</option>
+                <option value="Laura Annie Willson Building (LW)">Laura Annie Willson Building (LW)</option>
+                <option value="Richard Steinitz Building (RS)">Richard Steinitz Building (RS)</option>
+                <option value="Schwann Building (SB)">Schwann Building (SB)</option>
+                <option value="Stewart Film Studios (SFS)">Stewart Film Studios (SFS)</option>
+                <option value="Sir John Ramsden Court (JR)">Sir John Ramsden Court (JR)</option>
+                <option value="Sir Patrick Stewart Building (PS)">Sir Patrick Stewart Building (PS)</option>
+                <option value="Spärck Jones Building (SJ)">Spärck Jones Building (SJ)</option>
+                <option value="Student Central (SC)">Student Central (SC)</option>
+                <option value="St. Paul’s Hall (PL)">St. Paul’s Hall (PL)</option>
+                <option value="Sovereign Design House (SD)">Sovereign Design House (SD)</option>
+                <option value="University Health Centre (UHC)">University Health Centre (UHC)</option>
+            </select>
+        </div>
+        <div class="iot-modal-actions">
+            <button onclick="toggleModal(false)" style="background: #e2e8f0; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer;">Cancel</button>
+            <button onclick="submitRegistration()" style="background: #10b981; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer;">Register</button>
+        </div>
+    </div>
+</div>
+
 </body>
 </html>

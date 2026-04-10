@@ -7,7 +7,7 @@ async function seedSecurity() {
         // Replace 'SuperSecurePassword123' with your actual desired password
         const hashedPassword = await bcrypt.hash('SuperSecurePassword123', 10);
         
-        // Using INSERT IGNORE so running this script multiple times won't crash if the account exists
+        // Using INSERT IGNORE so running this script multiple times won't crash if the account eists
         await db.execute(
             `INSERT IGNORE INTO users (username, password_hash, role) VALUES (?, ?, 'security')`,
             ['security_admin', hashedPassword]

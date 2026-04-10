@@ -51,3 +51,33 @@ exports.getLatestData = async (req, res) => {
         res.status(500).json({ error: 'Failed to fetch sensor data' });
     }
 };
+
+// Add to the bottom of controllers/iotController.js
+
+exports.registerDevice = async (req, res) => {
+    const { device_id, device_name, location } = req.body;
+
+    // Basic validation
+    if (!device_id || !device_name || !location) {
+        return res.status(400).json({ error: 'All fields are required.' });
+    }
+
+    try {
+        // Enforce Unique ID: Check if the device_id already exists
+        const [existing] = await db.execute('SELECT device_id FROM devices WHERE device_id = ?', [device_id]);
+        if (existing.length > 0) {
+            return res.status(409).json({ error: 'A device with this ID already exists.' });
+        }
+
+        // Insert the new device (is_active defaults to TRUE based on our table schema)
+        await db.execute(
+            'INSERT INTO devices (device_id, device_name, location) VALUES (?, ?, ?)',
+            [device_id, device_name, location]
+        );
+
+        res.status(201).json({ message: 'Sensor registered successfully!' });
+    } catch (error) {
+        console.error("Registration Error:", error);
+        res.status(500).json({ error: 'Failed to register the device.' });
+    }
+};

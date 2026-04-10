@@ -30,33 +30,88 @@ async function fetchSensorData() {
     }
 }
 
-// --- 🚨 ALERTS SYSTEM ---
+
+
+// --- 🚨 UPGRADED TOAST NOTIFICATION SYSTEM ---
+// We track the time of the last alert so we don't spam the same notification every 5 seconds
+let lastAlertTimestamp = null; 
+
 function checkForAlerts(logs) {
     if (logs.length === 0) return;
     
-    // Check the absolute latest reading (the first item in the array)
+    // Check the latest reading
     const latestReading = logs[0];
-    const banner = document.getElementById('alert-banner');
 
-    if (latestReading.door_status === 'OPEN') {
-        if (!alertAcknowledged) {
-            banner.style.display = 'flex';
-            banner.innerHTML = `
-                <span>⚠️ EMERGENCY: ${latestReading.device_name} (${latestReading.location}) has been OPENED!</span>
-                <button onclick="acknowledgeAlert()" style="background: none; border: 1px solid white; color: white; padding: 5px 10px; cursor: pointer; border-radius: 4px;">Acknowledge</button>
-            `;
-        }
-    } else {
-        // If the door is closed, hide the banner and reset the acknowledge flag
-        banner.style.display = 'none';
-        alertAcknowledged = false; 
+    // If it's an OPEN door, AND it's a newer reading than the last one we alerted about...
+    if (latestReading.door_status === 'OPEN' && latestReading.logged_at !== lastAlertTimestamp) {
+        lastAlertTimestamp = latestReading.logged_at; // Update our tracker
+        
+        const toastContainer = document.getElementById('toast-container');
+        const toast = document.createElement('div');
+        toast.className = 'toast';
+        toast.innerHTML = `
+            <div class="toast-content">
+                <span class="toast-title">🚨 Security Breach Detected</span>
+                <span class="toast-msg">${latestReading.device_name} opened at ${latestReading.location}</span>
+            </div>
+            <button class="toast-close" onclick="this.parentElement.remove()">×</button>
+        `;
+        
+        toastContainer.appendChild(toast);
+
+        // Auto-remove the toast after 10 seconds to keep the screen clean
+        setTimeout(() => {
+            if(toast.parentElement) toast.remove();
+        }, 10000);
     }
 }
 
-function acknowledgeAlert() {
-    document.getElementById('alert-banner').style.display = 'none';
-    alertAcknowledged = true; // Prevents it from flashing again until the door closes and re-opens
+// --- 🛠️ REGISTRATION MODAL LOGIC ---
+function toggleModal(show) {
+    document.getElementById('reg-modal').style.display = show ? 'flex' : 'none';
+    if (!show) {
+        // Clear inputs on close so it's empty the next time they open it
+        document.getElementById('reg-id').value = '';
+        document.getElementById('reg-name').value = '';
+        document.getElementById('reg-loc').value = '';
+    }
 }
+
+async function submitRegistration() {
+    const device_id = document.getElementById('reg-id').value.trim();
+    const device_name = document.getElementById('reg-name').value.trim();
+    const location = document.getElementById('reg-loc').value;
+
+    if (!device_id || !device_name || !location) {
+        alert("Please fill out all fields and select a building.");
+        return;
+    }
+
+    try {
+        const res = await fetch('/api/iot/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ device_id, device_name, location })
+        });
+
+        const data = await res.json();
+
+        if (res.ok) {
+            alert("✅ Sensor Registered Successfully!");
+            toggleModal(false); // Close the popup
+            fetchSensorData(); // Refresh the dashboard immediately to show the new device
+        } else {
+            alert(`❌ Error: ${data.error}`);
+        }
+    } catch (err) {
+        alert("Failed to reach the server.");
+    }
+}
+
+
 
 // --- 🔍 FILTER SYSTEM ---
 function applyFilters() {
