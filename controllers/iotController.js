@@ -1,41 +1,50 @@
 // controllers/iotController.js
 const db = require('../config/database');
 
-// Existing function for the ESP32
-exports.logSensorData = async (req, res) => { 
-    // Extract the data sent by the ESP32
-    const { temperature, humidity, door_status } = req.body;
+exports.logSensorData = async (req, res) => {
+    // 1. We now expect the ESP32 to tell us WHO it is
+    const { device_id, temperature, humidity, door_status } = req.body;
 
-    // Basic validation to ensure the ESP32 sent all required fields
-    if (temperature === undefined || humidity === undefined || !door_status) {
-        return res.status(400).json({ error: 'Missing required sensor data fields.' });
-    }
-
-    // Ensure door_status strictly matches our ENUM in the database
-    if (door_status !== 'OPEN' && door_status !== 'CLOSED') {
-        return res.status(400).json({ error: 'Invalid door_status. Must be OPEN or CLOSED.' });
+    if (!device_id) {
+        return res.status(400).json({ error: 'Missing device_id in payload' });
     }
 
     try {
+        // 2. Check if the device is registered AND turned ON
+        const [devices] = await db.execute('SELECT is_active FROM devices WHERE device_id = ?', [device_id]);
+        
+        if (devices.length === 0) {
+            return res.status(404).json({ error: 'Unregistered device' });
+        }
+        if (devices[0].is_active === 0) {
+            // The dial is turned "OFF", so we ignore the data
+            return res.status(200).json({ message: 'Device is disabled. Data ignored.' });
+        }
+
+        // 3. Log the data, now attached to the specific device
         await db.execute(
-            `INSERT INTO sensor_logs (temperature, humidity, door_status) VALUES (?, ?, ?)`,
-            [temperature, humidity, door_status]
+            'INSERT INTO sensor_logs (device_id, temperature, humidity, door_status) VALUES (?, ?, ?, ?)',
+            [device_id, temperature, humidity, door_status]
         );
 
-        res.status(201).json({ message: 'Sensor data logged successfully.' });
+        res.status(200).json({ message: 'Data logged successfully' });
     } catch (error) {
-        console.error('IoT DB Insert Error:', error);
-        res.status(500).json({ error: 'Failed to save sensor data to the database.' });
+        console.error("Database Error:", error);
+        res.status(500).json({ error: 'Failed to save data' });
     }
-
 };
 
-// NEW function for the Security Dashboard
+// NEW function for the Security Dashboard (Upgraded with JOIN)
 exports.getLatestData = async (req, res) => {
     try {
-        const [logs] = await db.execute(
-            'SELECT * FROM sensor_logs ORDER BY logged_at DESC LIMIT 20'
-        );
+        // We JOIN the devices table to get the friendly name and location!
+        const [logs] = await db.execute(`
+            SELECT sl.*, d.device_name, d.location 
+            FROM sensor_logs sl
+            JOIN devices d ON sl.device_id = d.device_id
+            ORDER BY sl.logged_at DESC 
+            LIMIT 50
+        `);
         res.status(200).json(logs);
     } catch (error) {
         console.error("Fetch Error:", error);

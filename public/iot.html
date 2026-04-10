@@ -3,31 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SCSS | Live IoT Sensors</title>
+    <title>SCSS | Modular IoT Hub</title>
     <link rel="stylesheet" href="style.css">
 </head>
-<body>
-    <div class="card portal-card" style="max-width: 800px; margin: 40px auto;">
-        <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <h2>🌡️ Live Campus Sensors</h2>
-            <button onclick="location.href='security.html'" class="secondary-btn" style="width: auto;">⬅ Back to Dashboard</button>
-        </header>
+<body style="background-color: #f8fafc; margin: 0;">
+
+    <div class="iot-dashboard-container">
         
+        <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2>🌡️ Central Device Hub</h2>
+            <button onclick="location.href='security.html'" class="secondary-btn" style="width: auto;">⬅ Back to Dispatch</button>
+        </header>
+
+        <div id="alert-banner" class="iot-alert-banner">
+            <span>⚠️ EMERGENCY: A Fire Exit Door has been opened!</span>
+            <button onclick="document.getElementById('alert-banner').style.display='none'" style="background: none; border: 1px solid white; color: white; padding: 5px 10px; cursor: pointer; border-radius: 4px;">Acknowledge</button>
+        </div>
+
+        <div class="iot-top-controls">
+            <div class="iot-panel">
+                <h3>Registered Devices</h3>
+                <div id="device-list">
+                    <p style="font-size: 12px; color: #64748b;">Loading devices...</p>
+                </div>
+            </div>
+
+            <div class="iot-panel">
+                <h3>Filter Logs</h3>
+                <div class="iot-filter-group">
+                    <input type="text" id="search-filter" placeholder="Search by Location or Device Name..." oninput="applyFilters()">
+                    <select id="status-filter" onchange="applyFilters()">
+                        <option value="ALL">All Statuses</option>
+                        <option value="OPEN">🚨 Opened Doors Only</option>
+                        <option value="CLOSED">✅ Closed Doors Only</option>
+                    </select>
+                </div>
+                <p style="font-size: 12px; color: #64748b; margin-top: 15px;">Use these filters to instantly narrow down the sensor history table below.</p>
+            </div>
+        </div>
+
         <div class="table-container">
             <table class="iot-table">
                 <thead>
                     <tr>
                         <th>Time</th>
+                        <th>Device Name</th>
+                        <th>Location</th>
                         <th>Temp (°C)</th>
                         <th>Humidity (%)</th>
-                        <th>Fire Exit Status</th>
+                        <th>Door Status</th>
                     </tr>
                 </thead>
                 <tbody id="sensor-data">
-                    <tr><td colspan="4" style="text-align: center;">Waiting for sensor data...</td></tr>
+                    <tr><td colspan="6" style="text-align: center;">Waiting for modular sensor data...</td></tr>
                 </tbody>
             </table>
         </div>
+
     </div>
 
     <script src="iot.js"></script>
