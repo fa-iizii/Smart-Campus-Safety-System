@@ -4,6 +4,9 @@ const cors = require('cors');
 const path = require('path');
 require('dotenv').config();
 
+// Add this near your other require statements
+require('./services/cronJobs');
+
 // Import database pool (to ensure it attempts connection on boot)
 const db = require('./config/database'); 
 
