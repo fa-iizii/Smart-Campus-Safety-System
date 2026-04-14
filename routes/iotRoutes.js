@@ -18,3 +18,6 @@ module.exports = router;
 
 // Add this next to your other routes in routes/iotRoutes.js
 router.post('/register', verifyToken, iotController.registerDevice);
+
+// Add this new route for Two-Way communication
+router.post('/toggle-alarm', verifyToken, iotController.toggleAlarm);

@@ -159,35 +159,64 @@ function renderTable(data) {
     });
 }
 
-// --- 🎛️ CONTROL PANEL RENDERING ---
+// --- 🎛️ UPGRADED CONTROL PANEL RENDERING ---
 function renderControlPanel(logs) {
     const deviceList = document.getElementById('device-list');
-    
-    // Extract unique devices from the recent logs
     const uniqueDevices = {};
+    
+    // Extract unique devices and their CURRENT alarm state
     logs.forEach(log => {
         if (!uniqueDevices[log.device_id]) {
-            uniqueDevices[log.device_id] = { name: log.device_name, loc: log.location };
+            uniqueDevices[log.device_id] = { 
+                name: log.device_name, 
+                loc: log.location,
+                alarm_active: log.alarm_active 
+            };
         }
     });
 
     deviceList.innerHTML = '';
     
     for (const [id, info] of Object.entries(uniqueDevices)) {
-        // For now, this is a visual UI toggle. To make it physically cut off data, 
-        // we would add a new PUT route to the backend to update 'is_active' in the database!
+        // Change button color based on whether the alarm is currently ON or OFF
+        const btnColor = info.alarm_active ? '#ef4444' : '#e2e8f0';
+        const btnText = info.alarm_active ? '🚨 ALARM ACTIVE (Click to Turn Off)' : 'Trigger Alarm';
+        const textColor = info.alarm_active ? 'white' : '#475569';
+
         deviceList.innerHTML += `
             <div class="device-row">
                 <div class="device-info">
                     <h4>${info.name}</h4>
                     <p>ID: ${id} | ${info.loc}</p>
                 </div>
-                <label class="toggle-switch">
-                    <input type="checkbox" checked onclick="alert('To physically disable this sensor, we need to add an UPDATE route to your backend API!')">
-                    <span class="slider"></span>
-                </label>
+                <button onclick="toggleDeviceAlarm('${id}', ${!info.alarm_active})" 
+                        style="background: ${btnColor}; color: ${textColor}; border: none; padding: 8px 12px; border-radius: 4px; font-weight: bold; cursor: pointer; transition: 0.2s;">
+                    ${btnText}
+                </button>
             </div>
         `;
+    }
+}
+
+// --- 🚨 THE COMMAND SENDER ---
+async function toggleDeviceAlarm(deviceId, turnOn) {
+    try {
+        const res = await fetch('/api/iot/toggle-alarm', {
+            method: 'POST',
+            headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}` 
+            },
+            body: JSON.stringify({ device_id: deviceId, alarm_active: turnOn })
+        });
+
+        if (res.ok) {
+            fetchSensorData(); // Instantly refresh the UI to show the new button color
+        } else {
+            alert("Failed to send command to the device.");
+        }
+    } catch (error) {
+        console.error("Command Error:", error);
     }
 }
 
