@@ -1,87 +1,171 @@
+#include <WiFi.h>
+#include <HTTPClient.h>
 #include "DHT.h"
+#include <ArduinoJson.h> 
 
-// --- PIN ASSIGNMENTS ---
+// ----------------------------------------------------------------
+// 1. NETWORK & SECURITY SETTINGS (Update these!)
+// ----------------------------------------------------------------
+const char* ssid = "Nighthawk-7";
+const char* password = "82148214";
+
+// Replace YOUR_COMPUTER_IP with your actual local IP (e.g., 192.168.1.50)
+const char* serverUrl = "http://10.109.149.220:3000/api/iot/log"; 
+const char* apiKey = "alpha47_iot_api_key"; 
+
+// ----------------------------------------------------------------
+// 2. HARDWARE PINS
+// ----------------------------------------------------------------
 #define DHTPIN 4
-#define DHTTYPE DHT11
+#define DHTTYPE DHT11 
+
 #define TRIG_PIN 5
-#define ECHO_PIN 18 
-#define RED_LED 2    
-#define GREEN_LED 15 
-#define BUZZER_PIN 13 
+#define ECHO_PIN 18
+
+#define GREEN_LED 19
+#define RED_LED 21
+#define BUZZER_PIN 22
+
+#define ONBOARD_LED 2 
+
+String deviceID = "ESP32_MAIN_01"; 
+const int DOOR_THRESHOLD_CM = 5; 
 
 DHT dht(DHTPIN, DHTTYPE);
 
-unsigned long lastRead = 0;
-unsigned long lastBeep = 0;
-bool buzzerActive = false;
-int distance = 0;
-
 void setup() {
   Serial.begin(115200);
-  dht.begin();
-  
+  delay(1000);
+
+  // Initialize Pins
   pinMode(TRIG_PIN, OUTPUT);
   pinMode(ECHO_PIN, INPUT);
-  pinMode(RED_LED, OUTPUT);
   pinMode(GREEN_LED, OUTPUT);
-  pinMode(BUZZER_PIN, OUTPUT);
+  pinMode(RED_LED, OUTPUT);
+  pinMode(BUZZER_PIN, OUTPUT); 
+  pinMode(ONBOARD_LED, OUTPUT); 
+  
+  dht.begin();
 
-  // Soft startup chirp
-  tone(BUZZER_PIN, 800, 100); 
+  // Connect to Wi-Fi
+  Serial.print("\nConnecting to Wi-Fi: ");
+  Serial.println(ssid);
+  WiFi.begin(ssid, password);
+
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+    digitalWrite(ONBOARD_LED, !digitalRead(ONBOARD_LED)); 
+  }
+  
+  digitalWrite(ONBOARD_LED, HIGH);
+  
+  Serial.println("\n✅ Wi-Fi Connected!");
+  Serial.print("ESP32 IP Address: ");
+  Serial.println(WiFi.localIP());
 }
 
 void loop() {
-  unsigned long currentMillis = millis();
-
-  // 1. Refresh Sensors
-  if (currentMillis - lastRead > 150) {
-    lastRead = currentMillis;
-    digitalWrite(TRIG_PIN, LOW); delayMicroseconds(2);
-    digitalWrite(TRIG_PIN, HIGH); delayMicroseconds(10);
-    digitalWrite(TRIG_PIN, LOW);
-    long duration = pulseIn(ECHO_PIN, HIGH, 25000);
-    distance = duration * 0.034 / 2;
-  }
-
-  // 2. Door Logic
-  int beepGap = 0;   // Time between beeps
-  int beepLength = 0; // How long the beep lasts
-
-  if (distance > 0 && distance <= 5) {
-    // DOOR CLOSED: Green LED, Silence
-    digitalWrite(GREEN_LED, HIGH);
-    digitalWrite(RED_LED, LOW);
-    beepGap = 0; 
-    noTone(BUZZER_PIN);
-  } 
-  else if (distance > 5 && distance < 80) {
-    // DOOR OPENING: Red LED
-    digitalWrite(GREEN_LED, LOW);
-    digitalWrite(RED_LED, HIGH);
+  if (WiFi.status() == WL_CONNECTED) {
     
-    // ADJUSTING THE SOUND:
-    // Close to 5cm = Long gaps (slow), Short beeps (quiet feel)
-    // Close to 80cm = Short gaps (fast), Longer beeps (urgent feel)
-    beepGap = map(distance, 5, 80, 800, 100); 
-    beepLength = map(distance, 5, 80, 20, 80); 
-  }
-  else {
-    // WIDE OPEN: Regular Warning
-    digitalWrite(GREEN_LED, LOW);
-    digitalWrite(RED_LED, HIGH);
-    beepGap = 150;
-    beepLength = 50;
-  }
+    digitalWrite(ONBOARD_LED, HIGH);
 
-  // 3. The "Non-Annoying" Beep Logic
-  if (beepGap > 0) {
-    if (currentMillis - lastBeep > beepGap) {
-      lastBeep = currentMillis;
-      
-      // We use a lower 1000Hz frequency for a "friendlier" sound
-      tone(BUZZER_PIN, 2500, beepLength); 
+    // 1. Read Sensors (WITH FAULT TOLERANCE)
+    float h = dht.readHumidity();
+    float t = dht.readTemperature();
+    
+    // If the sensor is broken/unplugged, default to 0 instead of crashing
+    if (isnan(h) || isnan(t)) {
+      Serial.println("⚠️ DHT Sensor missing/broken. Defaulting to 0.");
+      h = 0.0;
+      t = 0.0;
     }
+
+    // 2. Read Distance
+    digitalWrite(TRIG_PIN, LOW);
+    delayMicroseconds(2);
+    digitalWrite(TRIG_PIN, HIGH);
+    delayMicroseconds(10);
+    digitalWrite(TRIG_PIN, LOW);
+    
+    long duration = pulseIn(ECHO_PIN, HIGH);
+    int distance_cm = duration * 0.034 / 2;
+
+    // 3. Determine Door Status & Control LEDs locally
+    String doorStatus;
+    if (distance_cm > DOOR_THRESHOLD_CM) {
+      doorStatus = "OPEN";
+      digitalWrite(RED_LED, HIGH);
+      digitalWrite(GREEN_LED, LOW);
+    } else {
+      doorStatus = "CLOSED";
+      digitalWrite(RED_LED, LOW);
+      digitalWrite(GREEN_LED, HIGH);
+    }
+
+    // 4. Build JSON Payload
+    String jsonPayload = "{";
+    jsonPayload += "\"device_id\":\"" + deviceID + "\",";
+    jsonPayload += "\"temperature\":" + String(t) + ",";
+    jsonPayload += "\"humidity\":" + String(h) + ",";
+    jsonPayload += "\"door_status\":\"" + doorStatus + "\"";
+    jsonPayload += "}";
+
+    // 5. Send POST Request to the Laptop
+    HTTPClient http;
+    http.begin(serverUrl);
+    http.addHeader("Content-Type", "application/json");
+    http.addHeader("x-api-key", apiKey);
+
+    Serial.println("\n📡 Sending Data | Door: " + doorStatus + " | Dist: " + String(distance_cm) + "cm");
+
+    int httpResponseCode = http.POST(jsonPayload);
+
+    // 6. Handle Command & Control (Buzzer ONLY)
+    if (httpResponseCode > 0) {
+      String response = http.getString();
+      StaticJsonDocument<200> doc;
+      DeserializationError error = deserializeJson(doc, response);
+
+      if (!error) {
+        bool soundAlarm = doc["command"]["sound_alarm"];
+        
+        if (soundAlarm) {
+          Serial.println("   🚨 SERVER COMMAND: ALARM TRIGGERED!");
+          digitalWrite(BUZZER_PIN, HIGH); // 🔥 SOUND THE SIREN!
+        } else {
+          Serial.println("   ✅ SERVER COMMAND: Area Secure.");
+          digitalWrite(BUZZER_PIN, LOW);  // 🔇 SILENCE THE SIREN!
+        }
+      }
+    } else {
+      Serial.print("❌ Error on sending POST: ");
+      Serial.println(httpResponseCode);
+    }
+
+    http.end();
+    
+    // Wait 5 seconds before next reading
+    delay(5000); 
+
   } else {
-    noTone(BUZZER_PIN);
+    // IF THE HOTSPOT DROPS:
+    Serial.println("\n⚠️ Wi-Fi Disconnected. Attempting to reconnect...");
+    
+    digitalWrite(GREEN_LED, LOW);
+    digitalWrite(RED_LED, LOW); 
+    digitalWrite(BUZZER_PIN, LOW); 
+
+    WiFi.disconnect();
+    WiFi.begin(ssid, password);
+
+    while (WiFi.status() != WL_CONNECTED) {
+      delay(250);
+      Serial.print(".");
+      digitalWrite(ONBOARD_LED, !digitalRead(ONBOARD_LED)); 
+    }
+    
+    Serial.println("\n✅ Wi-Fi Reconnected!");
+    digitalWrite(ONBOARD_LED, HIGH); 
   }
 }

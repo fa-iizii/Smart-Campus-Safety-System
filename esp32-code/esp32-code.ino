@@ -6,11 +6,11 @@
 // ----------------------------------------------------------------
 // 1. NETWORK & SECURITY SETTINGS (Update these!)
 // ----------------------------------------------------------------
-const char* ssid = "Nighthawk-7";
-const char* password = "password123";
+const char* ssid = "wifi-ssid";
+const char* password = "wifi-password";
 
 // Replace YOUR_COMPUTER_IP with your actual local IP (e.g., 192.168.1.50)
-const char* serverUrl = "http://your-ip-address:3000/api/iot/log"; 
+const char* serverUrl = "http://your-computer-ip:3000/api/iot/log"; 
 const char* apiKey = "alpha47_iot_api_key"; 
 
 // ----------------------------------------------------------------
@@ -24,7 +24,9 @@ const char* apiKey = "alpha47_iot_api_key";
 
 #define GREEN_LED 19
 #define RED_LED 21
-#define BUZZER_PIN 22 // <--- THE NEW SIREN PIN
+#define BUZZER_PIN 22
+
+#define ONBOARD_LED 2 
 
 String deviceID = "ESP32_MAIN_01"; 
 const int DOOR_THRESHOLD_CM = 5; 
@@ -40,7 +42,8 @@ void setup() {
   pinMode(ECHO_PIN, INPUT);
   pinMode(GREEN_LED, OUTPUT);
   pinMode(RED_LED, OUTPUT);
-  pinMode(BUZZER_PIN, OUTPUT); // Initialize the buzzer
+  pinMode(BUZZER_PIN, OUTPUT); 
+  pinMode(ONBOARD_LED, OUTPUT); 
   
   dht.begin();
 
@@ -52,13 +55,10 @@ void setup() {
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
     Serial.print(".");
-    digitalWrite(RED_LED, !digitalRead(RED_LED)); 
+    digitalWrite(ONBOARD_LED, !digitalRead(ONBOARD_LED)); 
   }
   
-  // System Safe (Green On, Red/Buzzer Off)
-  digitalWrite(RED_LED, LOW);
-  digitalWrite(GREEN_LED, HIGH);
-  digitalWrite(BUZZER_PIN, LOW);
+  digitalWrite(ONBOARD_LED, HIGH);
   
   Serial.println("\n✅ Wi-Fi Connected!");
   Serial.print("ESP32 IP Address: ");
@@ -68,13 +68,17 @@ void setup() {
 void loop() {
   if (WiFi.status() == WL_CONNECTED) {
     
-    // 1. Read Sensors
+    digitalWrite(ONBOARD_LED, HIGH);
+
+    // 1. Read Sensors (WITH FAULT TOLERANCE)
     float h = dht.readHumidity();
     float t = dht.readTemperature();
     
+    // If the sensor is broken/unplugged, default to 0 instead of crashing
     if (isnan(h) || isnan(t)) {
-      Serial.println("⚠️ Failed to read from DHT sensor!");
-      return;
+      Serial.println("⚠️ DHT Sensor missing/broken. Defaulting to 0.");
+      h = 0.0;
+      t = 0.0;
     }
 
     // 2. Read Distance
@@ -87,8 +91,17 @@ void loop() {
     long duration = pulseIn(ECHO_PIN, HIGH);
     int distance_cm = duration * 0.034 / 2;
 
-    // 3. Determine Door Status
-    String doorStatus = (distance_cm > DOOR_THRESHOLD_CM) ? "OPEN" : "CLOSED";
+    // 3. Determine Door Status & Control LEDs locally
+    String doorStatus;
+    if (distance_cm > DOOR_THRESHOLD_CM) {
+      doorStatus = "OPEN";
+      digitalWrite(RED_LED, HIGH);
+      digitalWrite(GREEN_LED, LOW);
+    } else {
+      doorStatus = "CLOSED";
+      digitalWrite(RED_LED, LOW);
+      digitalWrite(GREEN_LED, HIGH);
+    }
 
     // 4. Build JSON Payload
     String jsonPayload = "{";
@@ -98,7 +111,7 @@ void loop() {
     jsonPayload += "\"door_status\":\"" + doorStatus + "\"";
     jsonPayload += "}";
 
-    // 5. Send POST Request
+    // 5. Send POST Request to the Laptop
     HTTPClient http;
     http.begin(serverUrl);
     http.addHeader("Content-Type", "application/json");
@@ -108,7 +121,7 @@ void loop() {
 
     int httpResponseCode = http.POST(jsonPayload);
 
-    // 6. Handle Command & Control
+    // 6. Handle Command & Control (Buzzer ONLY)
     if (httpResponseCode > 0) {
       String response = http.getString();
       StaticJsonDocument<200> doc;
@@ -119,13 +132,9 @@ void loop() {
         
         if (soundAlarm) {
           Serial.println("   🚨 SERVER COMMAND: ALARM TRIGGERED!");
-          digitalWrite(RED_LED, HIGH);
-          digitalWrite(GREEN_LED, LOW);
           digitalWrite(BUZZER_PIN, HIGH); // 🔥 SOUND THE SIREN!
         } else {
           Serial.println("   ✅ SERVER COMMAND: Area Secure.");
-          digitalWrite(RED_LED, LOW);
-          digitalWrite(GREEN_LED, HIGH);
           digitalWrite(BUZZER_PIN, LOW);  // 🔇 SILENCE THE SIREN!
         }
       }
@@ -135,12 +144,28 @@ void loop() {
     }
 
     http.end();
-  } else {
-    Serial.println("⚠️ Wi-Fi Disconnected.");
-    digitalWrite(GREEN_LED, LOW);
-    digitalWrite(RED_LED, HIGH); 
-    digitalWrite(BUZZER_PIN, LOW); // Keep buzzer off if Wi-Fi drops to avoid annoyance
-  }
+    
+    // Wait 5 seconds before next reading
+    delay(5000); 
 
-  delay(5000); 
+  } else {
+    // IF THE HOTSPOT DROPS:
+    Serial.println("\n⚠️ Wi-Fi Disconnected. Attempting to reconnect...");
+    
+    digitalWrite(GREEN_LED, LOW);
+    digitalWrite(RED_LED, LOW); 
+    digitalWrite(BUZZER_PIN, LOW); 
+
+    WiFi.disconnect();
+    WiFi.begin(ssid, password);
+
+    while (WiFi.status() != WL_CONNECTED) {
+      delay(250);
+      Serial.print(".");
+      digitalWrite(ONBOARD_LED, !digitalRead(ONBOARD_LED)); 
+    }
+    
+    Serial.println("\n✅ Wi-Fi Reconnected!");
+    digitalWrite(ONBOARD_LED, HIGH); 
+  }
 }
