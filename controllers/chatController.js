@@ -97,3 +97,49 @@ exports.getActiveUsers = async (_req, res) => {
         res.status(500).json({ error: 'Failed to fetch active users.' });
     }
 };
+
+
+// NEW function to delete chat history (for security team use only)
+const fs = require('fs');
+const path = require('path');
+
+exports.deleteChatHistory = async (req, res) => {
+    // The ID of the currently logged-in user
+    const userId = req.user.id; 
+
+    try {
+        // 1. FIND AND DELETE PHYSICAL PHOTOS
+        // Look for any images in the chat where this user was the sender OR receiver
+        const [photos] = await db.execute(
+            'SELECT image_path FROM messages WHERE (sender_id = ? OR receiver_id = ?) AND image_path IS NOT NULL', 
+            [userId, userId]
+        );
+
+        photos.forEach(photo => {
+            if (photo.image_path) {
+                // Clean up the path format (handles both Windows '\\' and Mac/Linux '/')
+                const fileName = photo.image_path.replace('uploads/', '').replace('uploads\\', '');
+                
+                // Point perfectly to your SCSS/uploads/ folder
+                const fullPath = path.join(__dirname, '../uploads', fileName);
+                
+                // Shred the physical file if it exists
+                if (fs.existsSync(fullPath)) {
+                    fs.unlinkSync(fullPath); 
+                }
+            }
+        });
+
+        // 2. WIPE THE DATABASE TEXT
+        // Delete all message rows associated with this user's conversation
+        await db.execute(
+            'DELETE FROM messages WHERE sender_id = ? OR receiver_id = ?', 
+            [userId, userId]
+        );
+
+        res.status(200).json({ message: 'All chat history and photos permanently deleted.' });
+    } catch (error) {
+        console.error("Delete Chat Error:", error);
+        res.status(500).json({ error: 'Failed to delete chat data.' });
+    }
+};

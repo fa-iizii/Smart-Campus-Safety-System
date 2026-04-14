@@ -1,14 +1,289 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
-    <meta charset="UTF-8"><title>SCSS | Home</title>
-    <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCSS | Smart Campus Safety System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --navy: #0A192F;
+            --navy-light: #112240;
+            --gold: #C5A059;
+            --gold-light: #D4AF37;
+            --surface: #FAFAFA;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--surface);
+            color: var(--navy);
+            overflow-x: hidden;
+            /* Premium subtle dot pattern */
+            background-image: radial-gradient(rgba(10, 25, 47, 0.05) 1px, transparent 1px);
+            background-size: 32px 32px;
+        }
+
+        .serif-heading {
+            font-family: 'Playfair Display', serif;
+        }
+
+        /* Glassmorphism Header */
+        .glass-nav {
+            background: rgba(250, 250, 250, 0.8);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(10, 25, 47, 0.05);
+        }
+
+        /* Premium Micro-animations */
+        .transition-premium {
+            transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* The Button */
+        .btn-portal {
+            background-color: var(--navy);
+            color: white;
+            position: relative;
+            overflow: hidden;
+            isolation: isolate;
+        }
+
+        .btn-portal::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: left 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: -1;
+        }
+
+        .btn-portal:hover::before {
+            left: 100%;
+        }
+
+        .btn-portal:hover {
+            background-color: var(--navy-light);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px -8px rgba(10, 25, 47, 0.4);
+        }
+
+        .btn-portal .arrow {
+            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            display: inline-block;
+        }
+
+        .btn-portal:hover .arrow {
+            transform: translateX(6px);
+        }
+
+        /* Feature Cards */
+        .premium-card {
+            background: white;
+            border: 1px solid rgba(10, 25, 47, 0.04);
+            border-radius: 24px;
+            padding: 2.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .premium-card::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--gold);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .premium-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px -12px rgba(10, 25, 47, 0.06);
+            border-color: rgba(10, 25, 47, 0.08);
+        }
+
+        .premium-card:hover::after {
+            transform: scaleX(1);
+        }
+
+        .icon-wrapper {
+            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .premium-card:hover .icon-wrapper {
+            transform: scale(1.05) translateY(-2px);
+            color: var(--gold);
+        }
+
+        /* Scroll Reveal Utility */
+        .reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1), transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .delay-100 { transition-delay: 100ms; }
+        .delay-200 { transition-delay: 200ms; }
+        .delay-300 { transition-delay: 300ms; }
+    </style>
 </head>
-<body>
-    <div class="landing-page">
-        <h1>Smart Campus Safety System</h1>
-        <p>A centralized platform for real-time safety monitoring and incident reporting.</p>
-        <button onclick="location.href='login.html'" class="primary-btn">Enter Portal</button>
-    </div>
+<body class="antialiased selection:bg-[#C5A059] selection:text-white">
+
+    <!-- Premium Navigation -->
+    <header class="fixed w-full top-0 z-50 glass-nav transition-premium">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
+            <div class="flex items-center space-x-4">
+                <div class="w-8 h-8 bg-[#0A192F] text-white flex items-center justify-center rounded-sm serif-heading text-lg">
+                    H
+                </div>
+                <div>
+                    <h2 class="text-[10px] font-semibold tracking-[0.2em] uppercase text-slate-400">University of Huddersfield</h2>
+                    <p class="text-sm font-medium text-[#0A192F]">Smart Campus Safety System</p>
+                </div>
+            </div>
+            <div class="hidden md:flex items-center space-x-2">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                <span class="text-[10px] font-medium tracking-widest uppercase text-slate-500">System Active</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="relative pt-40 pb-24 md:pt-56 md:pb-32 px-6">
+        <div class="max-w-4xl mx-auto text-center">
+            <div class="reveal inline-flex items-center space-x-2 px-4 py-1.5 rounded-full border border-[#0A192F]/10 bg-white/50 backdrop-blur-sm text-[10px] font-semibold uppercase tracking-[0.2em] text-[#0A192F] mb-8">
+                <svg class="w-3 h-3 text-[#C5A059]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                <span>Institutional Security Portal</span>
+            </div>
+            
+            <h1 class="reveal delay-100 text-5xl md:text-7xl font-semibold serif-heading mb-8 leading-[1.1] text-[#0A192F]">
+                Institutional Safety <br> 
+                <span class="italic text-[#C5A059] font-normal">Through Innovation.</span>
+            </h1>
+            
+            <p class="reveal delay-200 text-lg text-slate-500 mb-12 max-w-2xl mx-auto leading-relaxed font-light">
+                A centralized platform for real-time safety monitoring and incident reporting, seamlessly bridging the gap between automated IoT sensors and human emergency response.
+            </p>
+            
+            <div class="reveal delay-300">
+                <button onclick="location.href='login.html'" class="btn-portal transition-premium px-10 py-4 rounded-full font-medium text-sm uppercase tracking-widest inline-flex items-center space-x-3">
+                    <span>Enter Portal</span>
+                    <svg class="w-4 h-4 arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Refined Information Grid -->
+    <section class="max-w-7xl mx-auto px-6 py-24 border-t border-[#0A192F]/5">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            
+            <!-- IoT Monitoring -->
+            <div class="premium-card transition-premium reveal">
+                <div class="icon-wrapper w-12 h-12 mb-8 text-[#0A192F]">
+                    <svg class="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-medium mb-3 text-[#0A192F] serif-heading">IoT Shield</h3>
+                <p class="text-slate-500 leading-relaxed text-sm font-light">
+                    Advanced ESP32 integration providing live, precision metrics on fire exit statuses and environmental conditions.
+                </p>
+            </div>
+
+            <!-- Incident Reporting -->
+            <div class="premium-card transition-premium reveal delay-100">
+                <div class="icon-wrapper w-12 h-12 mb-8 text-[#0A192F]">
+                    <svg class="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-medium mb-3 text-[#0A192F] serif-heading">Rapid Response</h3>
+                <p class="text-slate-500 leading-relaxed text-sm font-light">
+                    A streamlined, high-priority reporting interface designed for immediate action and detailed hazard logging.
+                </p>
+            </div>
+
+            <!-- Secure Access -->
+            <div class="premium-card transition-premium reveal delay-200">
+                <div class="icon-wrapper w-12 h-12 mb-8 text-[#0A192F]">
+                    <svg class="w-full h-full" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-medium mb-3 text-[#0A192F] serif-heading">Direct Link</h3>
+                <p class="text-slate-500 leading-relaxed text-sm font-light">
+                    An encrypted communication bridge connecting the student body directly to authorized security personnel.
+                </p>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Ultra-Minimal Footer -->
+    <footer class="border-t border-[#0A192F]/5 bg-white py-12 px-6">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+            <div class="flex flex-col items-center md:items-start">
+                <div class="text-[#0A192F] font-semibold text-sm mb-1">
+                    © Faiz Muhammed
+                </div>
+                <div class="text-slate-400 text-[10px] tracking-[0.1em] uppercase font-medium">
+                    BSc (Hons) Applied Computing
+                </div>
+            </div>
+            
+            <a href="https://github.com/fa-iizii/Smart-Campus-Safety-System" target="_blank" rel="noopener noreferrer" class="group flex items-center space-x-2 text-sm text-slate-500 hover:text-[#C5A059] transition-premium">
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd" />
+                </svg>
+                <span class="relative overflow-hidden inline-block pb-0.5">
+                    Smart Campus Safety System
+                    <span class="absolute bottom-0 left-0 w-full h-[1px] bg-[#C5A059] transform -translate-x-full group-hover:translate-x-0 transition-transform duration-500 cubic-bezier(0.16, 1, 0.3, 1)"></span>
+                </span>
+            </a>
+        </div>
+    </footer>
+
+    <script>
+        // Smooth Intersection Observer for Scroll Reveals
+        document.addEventListener('DOMContentLoaded', () => {
+            const reveals = document.querySelectorAll('.reveal');
+            
+            const revealOptions = {
+                threshold: 0.15,
+                rootMargin: "0px 0px -50px 0px"
+            };
+
+            const revealOnScroll = new IntersectionObserver(function(entries, observer) {
+                entries.forEach(entry => {
+                    if (!entry.isIntersecting) {
+                        return;
+                    } else {
+                        entry.target.classList.add('active');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, revealOptions);
+
+            reveals.forEach(reveal => {
+                revealOnScroll.observe(reveal);
+            });
+        });
+    </script>
+
 </body>
 </html>

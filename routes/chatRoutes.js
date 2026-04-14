@@ -16,4 +16,8 @@ router.get('/history', verifyToken, chatController.getChatHistory);
 // ADD THIS NEW ROUTE:
 router.get('/active-users', verifyToken, chatController.getActiveUsers);
 
+// DELETE route to clear chat history
+router.delete('/delete-chat', verifyToken, chatController.deleteChatHistory);
+
+// ALWAYS keep this at the very bottom
 module.exports = router;

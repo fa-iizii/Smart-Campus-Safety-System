@@ -11,6 +11,9 @@
             <h2>Chat with Security</h2>
             <div class="usr-status">Online</div>
             <button class="usr-back-btn" onclick="location.href='user-portal.html'">Back</button>
+            <button onclick="triggerChatDeletion()" style="background-color: #ef4444; color: white; padding: 8px 12px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer;">
+    🗑️ Delete Chat History
+</button>
         </header>
 
         <div id="chat-box" class="usr-chat-box"></div>
@@ -86,6 +89,44 @@
                 load();
             } catch(e) { alert("Failed to send message"); }
         }
+
+        // This function will call the API to delete the chat history for the current user and then update the UI accordingly.
+        async function triggerChatDeletion() {
+    // Safety warning
+    const isConfirmed = confirm("🚨 Are you sure? This will permanently delete all messages and photos. This cannot be undone.");
+    
+    if (!isConfirmed) return; 
+
+    try {
+        const res = await fetch('/api/chat/delete-chat', {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}` // Adjust this if you store your token differently!
+            }
+        });
+
+        if (res.ok) {
+            // Clear the chat box on the screen
+            const chatBox = document.getElementById('chat-box'); // Make sure this matches your chat container's ID!
+            if(chatBox) {
+                chatBox.innerHTML = `
+                    <div style="text-align: center; color: #64748b; margin-top: 20px;">
+                        <h3>Data Securely Erased</h3>
+                        <p>Your chat history and uploaded photos have been permanently deleted.</p>
+                    </div>
+                `;
+            }
+            alert("✅ Chat history successfully deleted.");
+        } else {
+            const data = await res.json();
+            alert(`❌ Error: ${data.error}`);
+        }
+    } catch (err) {
+        console.error(err);
+        alert("Failed to reach the server to delete the chat.");
+    }
+}
 
         setInterval(load, 3000); 
         load();
