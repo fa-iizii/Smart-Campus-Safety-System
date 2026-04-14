@@ -7,10 +7,10 @@
 // 1. NETWORK & SECURITY SETTINGS (Update these!)
 // ----------------------------------------------------------------
 const char* ssid = "Nighthawk-7";
-const char* password = "82148214";
+const char* password = "password123";
 
 // Replace YOUR_COMPUTER_IP with your actual local IP (e.g., 192.168.1.50)
-const char* serverUrl = "http://10.0.7.181:3000/api/iot/log"; 
+const char* serverUrl = "http://your-ip-address:3000/api/iot/log"; 
 const char* apiKey = "alpha47_iot_api_key"; 
 
 // ----------------------------------------------------------------
