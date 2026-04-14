@@ -1,3 +1,10 @@
+// ----------------------------------------------------------------
+// ESP32 IoT Device Code
+// This code runs on the ESP32 microcontroller. It reads data from a DHT11 sensor and an ultrasonic distance sensor, then sends this data to a server via Wi-Fi. It also listens for commands from the server to control a buzzer.
+// Make sure to update the Wi-Fi credentials and server URL before uploading to your ESP32.
+// ----------------------------------------------------------------
+
+
 #include <WiFi.h>
 #include <HTTPClient.h>
 #include "DHT.h"
