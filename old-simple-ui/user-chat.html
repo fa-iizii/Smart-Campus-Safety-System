@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SCSS | Report Incident</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="usr-page-bg">
+    <div class="usr-chat-container">
+        <header class="usr-header">
+            <h2>Chat with Security</h2>
+            <div class="usr-status">Online</div>
+            <button class="usr-back-btn" onclick="location.href='user-portal.html'">Back</button>
+            <button onclick="triggerChatDeletion()" style="background-color: #ef4444; color: white; padding: 8px 12px; border: none; border-radius: 4px; font-weight: bold; cursor: pointer;">
+    🗑️ Delete Chat History
+</button>
+        </header>
+
+        <div id="chat-box" class="usr-chat-box"></div>
+
+        <div class="usr-tools-area">
+            <button class="usr-template-btn" onclick="insertTemplate()">Quick Insert Template</button>
+        </div>
+
+        <div class="usr-input-area">
+            <input type="text" id="msg" placeholder="Explain your situation...">
+            
+            <input type="file" id="img" style="display:none" onchange="updateFileStatus()">
+            <label for="img" id="file-label" class="usr-file-btn" title="Attach Image">📷</label>
+            
+            <button onclick="send()" class="usr-send-btn">Send</button>
+        </div>
+    </div>
+
+    <script>
+        const token = localStorage.getItem('token');
+        if (!token) window.location.href = 'login.html';
+
+        // Injects the format string into the chat box
+        function insertTemplate() {
+            const msgInput = document.getElementById('msg');
+            msgInput.value = "Location: [ enter location ] | Description: [ describe ] | Severity: [ give rating out 10 eg: 8/10 ]";
+            msgInput.focus();
+        }
+
+        // Changes the camera icon to a paperclip when an image is selected
+        function updateFileStatus() {
+            document.getElementById('file-label').innerText = '📎'; 
+        }
+
+        async function load() {
+            try {
+                const res = await fetch('/api/chat/history', { headers: { 'Authorization': `Bearer ${token}` } });
+                const data = await res.json();
+                const box = document.getElementById('chat-box');
+                
+                box.innerHTML = data.map(m => `
+                    <div class="usr-msg ${m.sender_name === 'security_admin' ? 'received' : 'sent'}">
+                        ${m.message_content ? `<span>${m.message_content}</span>` : ''}
+                        ${m.image_path ? `<br><img src="/${m.image_path}" style="max-width: 100%; border-radius: 5px; margin-top: 8px;">` : ''}
+                    </div>
+                `).join('');
+                
+                // Keep scroll at bottom
+                if(box.scrollHeight - box.scrollTop - box.clientHeight < 100) {
+                    box.scrollTop = box.scrollHeight;
+                }
+            } catch(e) { console.error(e); }
+        }
+
+        async function send() {
+            const msgInput = document.getElementById('msg');
+            const imgInput = document.getElementById('img');
+            
+            if (!msgInput.value.trim() && !imgInput.files[0]) return;
+
+            const fd = new FormData();
+            if (msgInput.value.trim()) fd.append('message_content', msgInput.value);
+            if (imgInput.files[0]) fd.append('image', imgInput.files[0]);
+
+            try {
+                await fetch('/api/chat/send', { method: 'POST', headers: { 'Authorization': `Bearer ${token}` }, body: fd });
+                
+                // Clear inputs after sending
+                msgInput.value = '';
+                imgInput.value = '';
+                document.getElementById('file-label').innerText = '📷';
+                
+                load();
+            } catch(e) { alert("Failed to send message"); }
+        }
+
+        // This function will call the API to delete the chat history for the current user and then update the UI accordingly.
+        async function triggerChatDeletion() {
+    // Safety warning
+    const isConfirmed = confirm("🚨 Are you sure? This will permanently delete all messages and photos. This cannot be undone.");
+    
+    if (!isConfirmed) return; 
+
+    try {
+        const res = await fetch('/api/chat/delete-chat', {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}` // Adjust this if you store your token differently!
+            }
+        });
+
+        if (res.ok) {
+            // Clear the chat box on the screen
+            const chatBox = document.getElementById('chat-box'); // Make sure this matches your chat container's ID!
+            if(chatBox) {
+                chatBox.innerHTML = `
+                    <div style="text-align: center; color: #64748b; margin-top: 20px;">
+                        <h3>Data Securely Erased</h3>
+                        <p>Your chat history and uploaded photos have been permanently deleted.</p>
+                    </div>
+                `;
+            }
+            alert("✅ Chat history successfully deleted.");
+        } else {
+            const data = await res.json();
+            alert(`❌ Error: ${data.error}`);
+        }
+    } catch (err) {
+        console.error(err);
+        alert("Failed to reach the server to delete the chat.");
+    }
+}
+
+        setInterval(load, 3000); 
+        load();
+    </script>
+</body>
+</html>
