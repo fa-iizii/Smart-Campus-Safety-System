@@ -1,82 +1,57 @@
 # Smart Campus Safety System (SCSS)
 
-A centralized campus security platform integrating real-time IoT monitoring with a user-friendly incident reporting portal. Developed as a Final Year Project for the BSc (Hons) Applied Computing program at the University of Huddersfield.
+Smart Campus Safety System (SCSS) centralizes campus safety monitoring by combining IoT sensor data (ESP32) with a web-based incident reporting and messaging portal. This project was developed as a final-year project for BSc (Hons) Applied Computing at the University of Huddersfield.
 
----
-
-## Table of Contents
-- [Project Overview](#project-overview)
-- [Programming Languages](#programming-languages)
-- [Key Features](#key-features)
+## Contents
+- [Overview](#overview)
+- [Features](#features)
 - [Tech Stack](#tech-stack)
 - [Prerequisites](#prerequisites)
-- [Getting Started](#getting-started)
-- [Installation & Setup](#installation--setup)
-- [ESP32 Setup Guide](#esp32-setup-guide)
+- [Quick Start](#quick-start)
+- [ESP32 Firmware Setup](#esp32-firmware-setup)
 - [Testing](#testing)
 - [API Documentation](#api-documentation)
-- [Project Structure](#project-structure)
 - [Troubleshooting](#troubleshooting)
+- [Contributing](#contributing)
 - [Author](#author)
 
----
+## Overview
+SCSS monitors fire-exit doors (open/closed) and environmental data (temperature, humidity) from ESP32-based sensors and provides a web portal for users and the security team to report incidents, attach photos, and exchange messages.
 
-## Project Overview
-The Smart Campus Safety System (SCSS) is designed to streamline campus security operations. It bridges the gap between automated physical security and human reporting by combining hardware sensors (ESP32) with a web-based portal. This allows the centralized security team to monitor fire exit statuses in real-time while processing user-submitted incident reports and direct messages.
-
-The system prioritizes a clean, functional UI to ensure high usability during critical safety situations.
-
-## Programming Languages
-- **JavaScript (Node.js):** Backend server and business logic
-- **JavaScript (Frontend):** Client-side interactivity and user interface
-- **SQL:** Database queries and data management
-- **C/C++:** ESP32 microcontroller firmware for IoT sensors
-
-## Key Features
-- **IoT Monitoring:** Real-time tracking of fire exit doors (Open/Closed status via distance sensors) and environmental tracking (DHT11 Temperature & Humidity).
-- **Role-Based Access Control (RBAC):** Secure separation between standard users (students/employees) and the centralized security team.
-- **Incident Reporting:** Users can submit detailed safety reports including location, severity level, and photo evidence.
-- **Direct Messaging:** A built-in chat interface for direct communication between users and the security team.
+## Features
+- Real-time IoT monitoring (door status, DHT11 readings)
+- Role-based access: users and security team
+- Incident reporting with photo uploads
+- Direct messaging between users and security
 
 ## Tech Stack
-- **Backend Framework:** Node.js with Express.js
-- **Database:** MySQL with mysql2 promise wrapper
-- **Authentication & Security:** JSON Web Tokens (JWT), bcrypt for password hashing
-- **File Handling:** Multer for image uploads
-- **IoT Hardware:** ESP32 microcontroller, DHT11 temperature/humidity sensor, ultrasonic distance sensor
+- Backend: Node.js, Express
+- Database: MySQL with `mysql2` (promise wrapper)
+- Auth: JWT and `bcrypt` for password hashing
+- File uploads: `multer`
+- IoT: ESP32 microcontroller, DHT11, ultrasonic distance sensor
 
 ## Prerequisites
-Ensure the following are installed on your laptop before proceeding:
-- Node.js v14 or higher (download from https://nodejs.org/)
-- MySQL Server 5.7 or higher (download from https://dev.mysql.com/downloads/installer/)
-- Git for version control (download from https://git-scm.com/)
-- A code editor such as Visual Studio Code (optional but recommended)
+- Node.js v14+ installed
+- MySQL Server (5.7+) running
+- Git (recommended)
 
-## Getting Started
-1. Clone the repository: `git clone https://github.com/yourusername/Smart-Campus-Safety-System.git`
-2. Install dependencies: `npm install`
-3. Configure `.env` file with database credentials
-4. Run migrations: `npm run migrate`
-5. Start the server: `npm start`
-6. Access the application at http://localhost:3000
+## Quick Start
+1. Clone the repo:
 
-## Installation & Setup
-
-### 1. Clone the Repository
-Open your terminal or command prompt and run:
 ```bash
 git clone https://github.com/yourusername/Smart-Campus-Safety-System.git
 cd Smart-Campus-Safety-System
 ```
 
-### 2. Install Dependencies
-Navigate to the project directory and install required Node.js packages:
+2. Install dependencies:
+
 ```bash
 npm install
 ```
 
-### 3. Configure the Database
-Create a MySQL database and user for the project:
+3. Create a MySQL database and user (adjust names/passwords):
+
 ```sql
 CREATE DATABASE scss_db;
 CREATE USER 'scss_user'@'localhost' IDENTIFIED BY 'your_secure_password';
@@ -84,8 +59,8 @@ GRANT ALL PRIVILEGES ON scss_db.* TO 'scss_user'@'localhost';
 FLUSH PRIVILEGES;
 ```
 
-### 4. Environment Configuration
-Create a `.env` file in the project root with the following variables:
+4. Add `.env` in the project root with:
+
 ```
 DB_HOST=localhost
 DB_USER=scss_user
@@ -95,42 +70,39 @@ JWT_SECRET=your_secret_key_here
 PORT=3000
 ```
 
-### 5. Run the Application
-Start the Node.js server:
+5. Run migrations (if provided) and start the server:
+
 ```bash
+npm run migrate  # if applicable
 npm start
 ```
 
-The application will be accessible at http://localhost:3000
+6. Open the app at http://localhost:3000
 
-## ESP32 Setup Guide
-1. Install Arduino IDE or PlatformIO
-2. Add ESP32 board support via the Board Manager
-3. Navigate to `/firmware` directory
-4. Update WiFi credentials in `config.h`
-5. Select ESP32 board and COM port
-6. Upload firmware using **Sketch > Upload** or `platformio run --target upload`
-7. Verify sensor connections and serial monitor output
+## ESP32 Firmware Setup
+1. Install Arduino IDE or PlatformIO and add ESP32 board support.
+2. Open the `esp32-code/esp32-code.ino` (or firmware folder) and update Wi‑Fi credentials.
+3. Select the target ESP32 board and correct COM port.
+4. Upload the sketch and monitor serial output to verify sensor readings.
 
 ## Testing
-Run the test suite:
+- Unit/integration tests:
+
 ```bash
 npm test
 ```
 
-For integration tests with ESP32 simulation:
-```bash
-npm run test:integration
-```
-
 ## API Documentation
-Comprehensive API endpoint documentation is available at `/docs/API.md` or visit http://localhost:3000/api-docs when the server is running.
+API docs are available in `/docs/API.md` or at `http://localhost:3000/api-docs` when the server is running.
 
 ## Troubleshooting
-| Issue | Solution |
-|-------|----------|
-| Database connection fails | Verify MySQL is running and credentials in `.env` are correct |
-| ESP32 won't upload | Check USB drivers installed and correct COM port selected |
-| Sensors not responding | Verify wiring and power supply to ESP32 |
-| Port 3000 already in use | Change PORT in `.env` or kill existing process |
-| JWT authentication errors | Regenerate JWT_SECRET in `.env` and clear browser cookies |
+- Database connection fails: ensure MySQL is running and `.env` credentials are correct.
+- ESP32 upload fails: check USB drivers and COM port.
+- Sensors not responding: verify wiring and power.
+- Port 3000 in use: change `PORT` in `.env` or stop the conflicting process.
+
+## Contributing
+Contributions and improvements are welcome. Open issues or PRs describing the change.
+
+## Author
+Final-year project by the author (University of Huddersfield).
