@@ -1,47 +1,64 @@
 # Smart Campus Safety System (SCSS)
 
-Smart Campus Safety System (SCSS) centralizes campus safety monitoring by combining IoT sensor data (ESP32) with a web-based incident reporting and messaging portal. This project was developed as a final-year project for BSc (Hons) Applied Computing at the University of Huddersfield.
+# Smart Campus Safety System (SCSS)
 
-## Contents
-- [Overview](#overview)
-- [Features](#features)
+A centralized campus security platform integrating real-time IoT monitoring with a user-friendly incident reporting portal. Developed as a Final Year Project for the BSc (Hons) Applied Computing program at the University of Huddersfield.
+
+---
+
+## Table of Contents
+- [Project Overview](#project-overview)
+- [Programming Languages](#programming-languages)
+- [Key Features](#key-features)
 - [Tech Stack](#tech-stack)
 - [Prerequisites](#prerequisites)
-- [Quick Start](#quick-start)
-- [ESP32 Firmware Setup](#esp32-firmware-setup)
+- [Getting Started](#getting-started)
+- [Installation & Setup](#installation--setup)
+- [ESP32 Setup Guide](#esp32-setup-guide)
 - [Testing](#testing)
 - [API Documentation](#api-documentation)
+- [Project Structure](#project-structure)
 - [Troubleshooting](#troubleshooting)
-- [Contributing](#contributing)
 - [Author](#author)
 
-## Overview
-SCSS monitors fire-exit doors (open/closed) and environmental data (temperature, humidity) from ESP32-based sensors and provides a web portal for users and the security team to report incidents, attach photos, and exchange messages.
+---
 
-## Features
-- Real-time IoT monitoring (door status, DHT11 readings)
-- Role-based access: users and security team
-- Incident reporting with photo uploads
-- Direct messaging between users and security
+## Project Overview
+The Smart Campus Safety System (SCSS) is designed to streamline campus security operations. It combines ESP32-based hardware sensors with a web portal so the centralized security team can monitor fire-exit statuses in real time, process user-submitted incident reports, and handle direct messages.
+
+The system emphasizes a clean, functional UI for high usability during safety incidents.
+
+## Programming Languages
+- **JavaScript (Node.js):** Backend server and business logic
+- **JavaScript (Frontend):** Client-side interactivity and user interface
+- **SQL:** Database queries and data management
+- **C/C++:** ESP32 microcontroller firmware
+
+## Key Features
+- **IoT Monitoring:** Real-time tracking of fire-exit doors (open/closed via distance sensors) and environmental data (DHT11 temperature & humidity)
+- **Role-Based Access Control (RBAC):** Separation between standard users and the centralized security team
+- **Incident Reporting:** Submit detailed safety reports with location, severity, and photo evidence
+- **Direct Messaging:** Chat interface for communication between users and security
 
 ## Tech Stack
-- Backend: Node.js, Express
-- Database: MySQL with `mysql2` (promise wrapper)
-- Auth: JWT and `bcrypt` for password hashing
-- File uploads: `multer`
-- IoT: ESP32 microcontroller, DHT11, ultrasonic distance sensor
+- **Backend:** Node.js with Express
+- **Database:** MySQL (with `mysql2` promise wrapper)
+- **Authentication:** JWT and `bcrypt` for password hashing
+- **File Handling:** `multer` for image uploads
+- **IoT Hardware:** ESP32, DHT11, ultrasonic distance sensor
 
 ## Prerequisites
-- Node.js v14+ installed
-- MySQL Server (5.7+) running
+Ensure the following are installed:
+- Node.js v14 or higher
+- MySQL Server 5.7 or higher
 - Git (recommended)
+- A code editor such as Visual Studio Code (optional)
 
-## Quick Start
-1. Clone the repo:
+## Getting Started
+1. Clone the repository:
 
 ```bash
 git clone https://github.com/yourusername/Smart-Campus-Safety-System.git
-cd Smart-Campus-Safety-System
 ```
 
 2. Install dependencies:
@@ -50,7 +67,36 @@ cd Smart-Campus-Safety-System
 npm install
 ```
 
-3. Create a MySQL database and user (adjust names/passwords):
+3. Configure a `.env` file with your database credentials.
+
+4. Run migrations (if provided) and start the server:
+
+```bash
+npm run migrate
+npm start
+```
+
+5. Open the application at http://localhost:3000
+
+## Installation & Setup
+
+### 1. Clone the repository
+Run:
+
+```bash
+git clone https://github.com/yourusername/Smart-Campus-Safety-System.git
+cd Smart-Campus-Safety-System
+```
+
+### 2. Install dependencies
+Run:
+
+```bash
+npm install
+```
+
+### 3. Configure the database
+Create a MySQL database and user (example):
 
 ```sql
 CREATE DATABASE scss_db;
@@ -59,7 +105,8 @@ GRANT ALL PRIVILEGES ON scss_db.* TO 'scss_user'@'localhost';
 FLUSH PRIVILEGES;
 ```
 
-4. Add `.env` in the project root with:
+### 4. Environment configuration
+Create a `.env` file in the project root with the following variables:
 
 ```
 DB_HOST=localhost
@@ -70,39 +117,48 @@ JWT_SECRET=your_secret_key_here
 PORT=3000
 ```
 
-5. Run migrations (if provided) and start the server:
+### 5. Run the application
+Start the Node.js server:
 
 ```bash
-npm run migrate  # if applicable
 npm start
 ```
 
-6. Open the app at http://localhost:3000
+The application will be accessible at http://localhost:3000
 
-## ESP32 Firmware Setup
-1. Install Arduino IDE or PlatformIO and add ESP32 board support.
-2. Open the `esp32-code/esp32-code.ino` (or firmware folder) and update Wi‑Fi credentials.
-3. Select the target ESP32 board and correct COM port.
-4. Upload the sketch and monitor serial output to verify sensor readings.
+## ESP32 Setup Guide
+1. Install Arduino IDE or PlatformIO
+2. Add ESP32 board support via the Board Manager
+3. Navigate to `/firmware` directory
+4. Update WiFi credentials in `config.h`
+5. Select ESP32 board and COM port
+6. Upload firmware using **Sketch > Upload** or `platformio run --target upload`
+7. Verify sensor connections and serial monitor output
 
 ## Testing
-- Unit/integration tests:
+Run the test suite:
 
 ```bash
 npm test
 ```
 
+For integration tests with ESP32 simulation:
+
+```bash
+npm run test:integration
+```
+
 ## API Documentation
-API docs are available in `/docs/API.md` or at `http://localhost:3000/api-docs` when the server is running.
+Comprehensive API endpoint documentation is available at `/docs/API.md` or visit http://localhost:3000/api-docs when the server is running.
 
 ## Troubleshooting
-- Database connection fails: ensure MySQL is running and `.env` credentials are correct.
-- ESP32 upload fails: check USB drivers and COM port.
-- Sensors not responding: verify wiring and power.
-- Port 3000 in use: change `PORT` in `.env` or stop the conflicting process.
-
-## Contributing
-Contributions and improvements are welcome. Open issues or PRs describing the change.
+| Issue | Solution |
+|-------|----------|
+| Database connection fails | Verify MySQL is running and credentials in `.env` are correct |
+| ESP32 won't upload | Check USB drivers installed and correct COM port selected |
+| Sensors not responding | Verify wiring and power supply to ESP32 |
+| Port 3000 already in use | Change PORT in `.env` or kill existing process |
+| JWT authentication errors | Regenerate JWT_SECRET in `.env` and clear browser cookies |
 
 ## Author
-Final-year project by the author (University of Huddersfield).
+Author: Final Year Project — BSc (Hons) Applied Computing, University of Huddersfield
