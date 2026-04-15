@@ -2,16 +2,30 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8"><title>SCSS | Security Control</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="style.css">
+    <script>
+        tailwind.config = { theme: { extend: { colors: { navy: { DEFAULT: '#0A192F', light: '#112240' }, gold: { DEFAULT: '#C5A059', light: '#D4AF37' }, surface: '#FAFAFA' } } } }
+    </script>
 </head>
-<body>
-    <div class="card portal-card">
-        <h2>Security Dashboard</h2>
-        <div class="menu-grid">
-            <button onclick="location.href='security-chat.html'" class="menu-btn">📨 View Incident Reports</button>
-            <button onclick="location.href='iot.html'" class="menu-btn">🌡 Live IoT Data</button>
-            <button onclick="logout()" class="logout-btn">Logout</button>
+<body class="flex items-center justify-center min-h-screen">
+    <div class="glass-panel p-12 rounded-xl max-w-xl w-full fade-up">
+        <h2 class="text-3xl italic font-serif text-navy mb-8 text-center">Security Dashboard</h2>
+        
+        <div class="grid grid-cols-2 gap-4 mb-6">
+            <button onclick="location.href='security-chat.html'" class="flex flex-col items-center justify-center gap-3 bg-white border border-slate-200 text-navy p-8 rounded premium-hover hover:border-gold">
+                <span class="text-2xl">📨</span>
+                <span class="text-sm font-medium">Incident Reports</span>
+            </button>
+            <button onclick="location.href='iot.html'" class="flex flex-col items-center justify-center gap-3 bg-navy text-surface p-8 rounded premium-hover hover:bg-navy-light">
+                <span class="text-2xl">🌡</span>
+                <span class="text-sm font-medium text-gold">Live IoT Data</span>
+            </button>
         </div>
+        
+        <button onclick="logout()" class="w-full bg-transparent border border-slate-300 text-slate-500 px-6 py-3 rounded text-xs tracking-widest uppercase hover:bg-slate-100 transition-colors">
+            Logout
+        </button>
     </div>
     <script>function logout() { localStorage.clear(); window.location.href = 'login.html'; }</script>
 </body>

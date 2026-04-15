@@ -3,41 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <title>SCSS | Dispatch Terminal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="style.css">
-    <style>body { margin: 0; }</style> </head>
-<body>
-    <div class="sec-layout">
-        <aside class="sec-sidebar">
-            <div class="sec-sidebar-header">
-                <h3>Active Incident Reports</h3>
-                <button onclick="location.href='security.html'" style="margin-top: 10px; padding: 5px; font-size: 12px; width: 100%;">⬅ Back to Dashboard</button>
+    <script>
+        tailwind.config = { theme: { extend: { colors: { navy: { DEFAULT: '#0A192F', light: '#112240' }, gold: { DEFAULT: '#C5A059', light: '#D4AF37' }, surface: '#FAFAFA' } } } }
+    </script>
+</head>
+<body class="h-screen w-screen overflow-hidden flex bg-surface">
+    
+    <aside class="w-80 bg-white border-r border-slate-200 flex flex-col z-10 shadow-[4px_0_24px_rgba(10,25,47,0.02)]">
+        <div class="p-6 border-b border-slate-200">
+            <h3 class="text-lg italic font-serif text-navy m-0">Active Incident Reports</h3>
+            <button onclick="location.href='security.html'" class="mt-4 w-full bg-transparent border border-slate-300 text-slate-500 px-4 py-2 rounded text-xs tracking-widest uppercase hover:bg-slate-50 transition-colors">
+                ⬅ Back to Dashboard
+            </button>
+        </div>
+        
+        <div id="user-list" class="overflow-y-auto flex-grow custom-scrollbar">
             </div>
-            <div id="user-list" class="sec-user-list">
-                </div>
-        </aside>
+    </aside>
 
-        <main class="sec-main">
-            <header class="sec-chat-header">
-                <h2 id="target-name">Select a report to begin responding</h2>
-            </header>
+    <main class="flex-grow flex flex-col bg-slate-50 relative">
+        
+        <div class="absolute inset-0 z-0 pointer-events-none" style="background-image: radial-gradient(rgba(10, 25, 47, 0.05) 1px, transparent 1px); background-size: 32px 32px;"></div>
+        
+        <header class="p-6 border-b border-slate-200 bg-white/80 backdrop-blur-md z-10 flex justify-between items-center shadow-sm">
+            <h2 id="target-name" class="text-xl italic font-serif text-navy m-0">Select a report to begin responding</h2>
+            <div class="flex items-center gap-2 text-xs text-slate-400">
+                <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                Secure Dispatch Channel
+            </div>
+        </header>
+        
+        <div id="chat-box" class="flex-grow p-8 overflow-y-auto flex flex-col gap-2 z-10 custom-scrollbar">
+            </div>
+
+        <div class="border-t border-slate-200 bg-white z-10">
             
-            <div id="chat-box" class="sec-chat-box">
-                </div>
-
-            <div class="sec-input-container">
-                <div class="sec-quick-replies" id="quick-replies" style="display: none;">
-                    <button class="sec-quick-btn" onclick="insertQuickReply('Sending a security team to your location immediately.')">Send Help</button>
-                    <button class="sec-quick-btn" onclick="insertQuickReply('Can you provide a physical description of the person or hazard?')">Ask Description</button>
-                    <button class="sec-quick-btn" onclick="insertQuickReply('Please move to a safe distance and await further instructions.')">Advise Safety</button>
-                </div>
-
-                <div class="sec-input-row">
-                    <input type="text" id="msg" placeholder="Reply to student..." disabled>
-                    <button onclick="send()" class="sec-send-btn" id="send-btn" disabled>Send Reply</button>
-                </div>
+            <div id="quick-replies" class="px-6 pt-4 pb-2 flex gap-2 overflow-x-auto custom-scrollbar" style="display: none;">
+                <button class="bg-white border border-slate-200 px-4 py-1.5 rounded-full text-xs text-slate-500 cursor-pointer hover:bg-slate-50 hover:border-navy hover:text-navy transition-colors whitespace-nowrap premium-hover" onclick="insertQuickReply('Sending a security team to your location immediately.')">Send Help</button>
+                <button class="bg-white border border-slate-200 px-4 py-1.5 rounded-full text-xs text-slate-500 cursor-pointer hover:bg-slate-50 hover:border-navy hover:text-navy transition-colors whitespace-nowrap premium-hover" onclick="insertQuickReply('Can you provide a physical description of the person or hazard?')">Ask Description</button>
+                <button class="bg-white border border-slate-200 px-4 py-1.5 rounded-full text-xs text-slate-500 cursor-pointer hover:bg-slate-50 hover:border-navy hover:text-navy transition-colors whitespace-nowrap premium-hover" onclick="insertQuickReply('Please move to a safe distance and await further instructions.')">Advise Safety</button>
             </div>
-        </main>
-    </div>
+            
+            <div class="p-6 pt-2 flex gap-3 items-center">
+                <input type="text" id="msg" placeholder="Reply to student..." disabled class="flex-grow px-4 py-3 bg-slate-50 border border-slate-200 rounded text-sm font-light text-navy focus:outline-none focus:border-gold transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                
+                <button id="send-btn" onclick="send()" disabled class="bg-navy text-surface px-8 py-3 rounded text-xs tracking-widest uppercase hover:bg-navy-light transition-colors premium-hover disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:transform-none disabled:hover:shadow-none">Send Reply</button>
+            </div>
+
+        </div>
+    </main>
 
     <script>
         let selectedId = null;
@@ -52,10 +68,10 @@
                 const users = await res.json();
                 
                 document.getElementById('user-list').innerHTML = users.map(u => 
-                    // Add 'active' class if this is the currently selected user
-                    `<div class="sec-user-item ${selectedId === u.id ? 'active' : ''}" onclick="selectUser(${u.id}, '${u.username}')">
-                        <h4>Report ID: ${u.id} - ${u.username}</h4>
-                        <p>User Account</p>
+                    // Updated classes here for Tailwind integration
+                    `<div class="p-4 border-b border-slate-100 cursor-pointer transition-colors ${selectedId === u.id ? 'bg-slate-50 border-l-4 border-l-gold' : 'bg-white border-l-4 border-l-transparent hover:bg-slate-50'}" onclick="selectUser(${u.id}, '${u.username}')">
+                        <h4 class="m-0 text-sm font-medium text-navy">Report ID: ${u.id} - ${u.username}</h4>
+                        <p class="m-0 text-xs text-slate-400 mt-1">User Account</p>
                     </div>`
                 ).join('');
             } catch(e) { console.error("Failed to load users"); }
@@ -70,7 +86,7 @@
             document.getElementById('send-btn').disabled = false;
             document.getElementById('quick-replies').style.display = 'flex';
             
-            loadUsers(); // Refresh list to apply the blue 'active' highlight
+            loadUsers(); // Refresh list to apply the active highlight
             loadChat();
         }
 
@@ -83,10 +99,11 @@
                 const filtered = allMsgs.filter(m => m.sender_id == selectedId || m.receiver_id == selectedId);
                 const box = document.getElementById('chat-box');
                 
+                // Note: I swapped 'sec-msg' for 'usr-msg' here so it automatically uses the premium chat bubble CSS we built in style.css!
                 box.innerHTML = filtered.map(m => `
-                    <div class="sec-msg ${m.sender_name === 'security_admin' ? 'sent' : 'received'}">
+                    <div class="usr-msg ${m.sender_name === 'security_admin' ? 'sent' : 'received'} fade-up" style="animation-duration: 0.3s;">
                         ${m.message_content ? `<span>${m.message_content}</span>` : ''}
-                        ${m.image_path ? `<br><img src="/${m.image_path}" style="max-width: 200px; border-radius: 5px; margin-top: 8px;">` : ''}
+                        ${m.image_path ? `<br><img src="/${m.image_path}" class="max-w-[200px] rounded mt-2 border border-slate-200/20 shadow-sm">` : ''}
                     </div>
                 `).join('');
                 

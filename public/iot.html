@@ -4,117 +4,108 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SCSS | Modular IoT Hub</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="style.css">
+    <script>
+        tailwind.config = { theme: { extend: { colors: { navy: { DEFAULT: '#0A192F', light: '#112240' }, gold: { DEFAULT: '#C5A059', light: '#D4AF37' }, surface: '#FAFAFA' } } } }
+    </script>
 </head>
-<body style="background-color: #f8fafc; margin: 0;">
+<body>
 <div id="toast-container" class="toast-container"></div>
-    <div class="iot-dashboard-container">
+    
+    <div class="max-w-6xl mx-auto py-10 px-6 fade-up">
         
-        <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <h2>🌡️ Central Device Hub</h2>
-            <button onclick="location.href='security.html'" class="secondary-btn" style="width: auto;">⬅ Back to Dispatch</button>
+        <header class="flex justify-between items-center mb-10 border-b border-slate-200 pb-6">
+            <h2 class="text-3xl italic font-serif text-navy m-0">Central Device Hub</h2>
+            <div class="flex gap-4">
+                <button onclick="toggleModal(true)" class="bg-gold text-white px-5 py-2.5 rounded text-xs tracking-widest uppercase premium-hover hover:bg-gold-light border border-transparent">
+                    + Register Sensor
+                </button>
+                <button onclick="location.href='security.html'" class="bg-transparent text-navy px-5 py-2.5 rounded text-xs tracking-widest uppercase hover:bg-slate-100 border border-slate-200 transition-colors">
+                    Back
+                </button>
+            </div>
         </header>
 
-        <div style="display: flex; justify-content: flex-end; margin-bottom: 15px;">
-             <button onclick="toggleModal(true)" style="background: #2563eb; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; font-weight: bold;">+ Register New Sensor</button>
-        </div>
-
-        <div class="iot-top-controls">
-            <div class="iot-panel">
-                <h3>Registered Devices</h3>
-                <div id="device-list">
-                    <p style="font-size: 12px; color: #64748b;">Loading devices...</p>
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+            <div class="glass-panel p-8 rounded-xl col-span-1 lg:col-span-1 border border-slate-200">
+                <h3 class="text-lg italic font-serif text-navy mb-6 border-b border-slate-100 pb-3">Registered Devices</h3>
+                <div id="device-list" class="flex flex-col">
+                    <p class="text-sm font-light text-slate-400 italic">Loading devices...</p>
                 </div>
             </div>
 
-            <div class="iot-panel">
-                <h3>Filter Logs</h3>
-                <div class="iot-filter-group">
-                    <input type="text" id="search-filter" placeholder="Search by Location or Device Name..." oninput="applyFilters()">
-                    <select id="status-filter" onchange="applyFilters()">
+            <div class="glass-panel p-8 rounded-xl col-span-1 lg:col-span-2 border border-slate-200 flex flex-col">
+                <h3 class="text-lg italic font-serif text-navy mb-6 border-b border-slate-100 pb-3">System Telemetry & Filtering</h3>
+                
+                <div class="flex flex-col md:flex-row gap-4 mb-6">
+                    <input type="text" id="search-filter" placeholder="Search Location or Device..." oninput="applyFilters()" class="flex-grow px-4 py-3 bg-white border border-slate-200 rounded text-sm font-light text-navy focus:outline-none focus:border-gold transition-colors">
+                    
+                    <select id="status-filter" onchange="applyFilters()" class="px-4 py-3 bg-white border border-slate-200 rounded text-sm font-light text-navy focus:outline-none focus:border-gold transition-colors min-w-[200px] appearance-none">
                         <option value="ALL">All Statuses</option>
-                        <option value="OPEN">🚨 Opened Doors Only</option>
-                        <option value="CLOSED">✅ Closed Doors Only</option>
+                        <option value="OPEN">Opened Doors</option>
+                        <option value="CLOSED">Closed Doors</option>
                     </select>
                 </div>
-                <p style="font-size: 12px; color: #64748b; margin-top: 15px;">Use these filters to instantly narrow down the sensor history table below.</p>
-            </div>
-        </div>
 
-        <div class="table-container">
-            <table class="iot-table">
-                <thead>
-                    <tr>
-                        <th>Time</th>
-                        <th>Device Name</th>
-                        <th>Location</th>
-                        <th>Temp (°C)</th>
-                        <th>Humidity (%)</th>
-                        <th>Door Status</th>
-                    </tr>
-                </thead>
-                <tbody id="sensor-data">
-                    <tr><td colspan="6" style="text-align: center;">Waiting for modular sensor data...</td></tr>
-                </tbody>
-            </table>
+                <div class="overflow-x-auto bg-white rounded border border-slate-200 flex-grow">
+                    <table class="w-full text-left text-sm font-light">
+                        <thead class="bg-slate-50 text-xs uppercase tracking-wider text-slate-500 border-b border-slate-200">
+                            <tr>
+                                <th class="px-6 py-4 font-medium">Time</th>
+                                <th class="px-6 py-4 font-medium">Device Name</th>
+                                <th class="px-6 py-4 font-medium">Location</th>
+                                <th class="px-6 py-4 font-medium">Temp (°C)</th>
+                                <th class="px-6 py-4 font-medium">Humidity</th>
+                                <th class="px-6 py-4 font-medium">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="sensor-data" class="divide-y divide-slate-100 text-navy">
+                            <tr><td colspan="6" class="px-6 py-8 text-center italic text-slate-400">Awaiting telemetry data...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
 
     </div>
 
     <script src="iot.js"></script>
 
-<div id="reg-modal" class="iot-modal-overlay">
-    <div class="iot-modal">
-        <h3>Register New Sensor</h3>
-        <div class="iot-form-group">
-            <label>Hardware Device ID</label>
-            <input type="text" id="reg-id" placeholder="e.g., ESP32_LIB_02">
-        </div>
-        <div class="iot-form-group">
-            <label>Friendly Device Name</label>
-            <input type="text" id="reg-name" placeholder="e.g., Secondary Fire Exit">
-        </div>
-        <div class="iot-form-group">
-            <label>Location (University Building)</label>
-            <select id="reg-loc">
-                <option value="">-- Select a Building --</option>
-                <option value="3M Buckley Innovation Centre (BIC)">3M Buckley Innovation Centre (BIC)</option>
-                <option value="Atkinson Holt (AH)">Atkinson Holt (AH)</option>
-                <option value="Brontë Lecture Theatres (BL)">Brontë Lecture Theatres (BL)</option>
-                <option value="Charles Sikes Building (CS)">Charles Sikes Building (CS)</option>
-                <option value="Barbara Hepworth Building (BH)">Barbara Hepworth Building (BH)</option>
-                <option value="Cockcroft Building (CO)">Cockcroft Building (CO)</option>
-                <option value="Harold Wilson Building (HW)">Harold Wilson Building (HW)</option>
-                <option value="Haslett Building (HA)">Haslett Building (HA)</option>
-                <option value="Jo Cox More In Common Centre (JC)">Jo Cox More In Common Centre (JC)</option>
-                <option value="Joseph Priestley East Building (JPE)">Joseph Priestley East Building (JPE)</option>
-                <option value="Joseph Priestley South Building (JPS)">Joseph Priestley South Building (JPS)</option>
-                <option value="Joseph Priestley West Building (JPW)">Joseph Priestley West Building (JPW)</option>
-                <option value="Lockside Building (LS)">Lockside Building (LS)</option>
-                <option value="Media, Journalism and Film Building (JM)">Media, Journalism and Film Building (JM)</option>
-                <option value="Oastler Building (OA)">Oastler Building (OA)</option>
-                <option value="Queen St. Building (QSB)">Queen St. Building (QSB)</option>
-                <option value="Percy Shaw House (SH)">Percy Shaw House (SH)</option>
-                <option value="Ramsden Building (R)">Ramsden Building (R)</option>
-                <option value="Laura Annie Willson Building (LW)">Laura Annie Willson Building (LW)</option>
-                <option value="Richard Steinitz Building (RS)">Richard Steinitz Building (RS)</option>
-                <option value="Schwann Building (SB)">Schwann Building (SB)</option>
-                <option value="Stewart Film Studios (SFS)">Stewart Film Studios (SFS)</option>
-                <option value="Sir John Ramsden Court (JR)">Sir John Ramsden Court (JR)</option>
-                <option value="Sir Patrick Stewart Building (PS)">Sir Patrick Stewart Building (PS)</option>
-                <option value="Spärck Jones Building (SJ)">Spärck Jones Building (SJ)</option>
-                <option value="Student Central (SC)">Student Central (SC)</option>
-                <option value="St. Paul’s Hall (PL)">St. Paul’s Hall (PL)</option>
-                <option value="Sovereign Design House (SD)">Sovereign Design House (SD)</option>
-                <option value="University Health Centre (UHC)">University Health Centre (UHC)</option>
-            </select>
-        </div>
-        <div class="iot-modal-actions">
-            <button onclick="toggleModal(false)" style="background: #e2e8f0; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer;">Cancel</button>
-            <button onclick="submitRegistration()" style="background: #10b981; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer;">Register</button>
+    <div id="reg-modal" class="iot-modal-overlay">
+        <div class="bg-white p-10 rounded-xl w-full max-w-md shadow-2xl border border-slate-100">
+            <h3 class="text-2xl italic font-serif text-navy mb-8 border-b border-slate-100 pb-4">Register Sensor</h3>
+            
+            <div class="flex flex-col gap-5 mb-8">
+                <div>
+                    <label class="block text-xs uppercase tracking-wider font-medium text-slate-400 mb-2">Hardware Device ID</label>
+                    <input type="text" id="reg-id" placeholder="e.g., ESP32_LIB_02" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded text-sm font-light focus:outline-none focus:border-gold transition-colors">
+                </div>
+                <div>
+                    <label class="block text-xs uppercase tracking-wider font-medium text-slate-400 mb-2">Friendly Name</label>
+                    <input type="text" id="reg-name" placeholder="e.g., Library Main Exit" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded text-sm font-light focus:outline-none focus:border-gold transition-colors">
+                </div>
+                <div>
+                    <label class="block text-xs uppercase tracking-wider font-medium text-slate-400 mb-2">Building Assignment</label>
+                    <select id="reg-loc" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded text-sm font-light focus:outline-none focus:border-gold transition-colors appearance-none">
+                        <option value="">-- Select a Building --</option>
+                        <option value="3M Buckley Innovation Centre (BIC)">3M Buckley Innovation Centre (BIC)</option>
+                        <option value="Atkinson Holt (AH)">Atkinson Holt (AH)</option>
+                        <option value="Brontë Lecture Theatres (BL)">Brontë Lecture Theatres (BL)</option>
+                        <option value="Charles Sikes Building (CS)">Charles Sikes Building (CS)</option>
+                        <option value="Barbara Hepworth Building (BH)">Barbara Hepworth Building (BH)</option>
+                        <option value="Student Central (SC)">Student Central (SC)</option>
+                        <option value="Oastler Building (OA)">Oastler Building (OA)</option>
+                        <option value="Schwann Building (SB)">Schwann Building (SB)</option>
+                        </select>
+                </div>
+            </div>
+            
+            <div class="flex justify-end gap-3 pt-4 border-t border-slate-100">
+                <button onclick="toggleModal(false)" class="px-6 py-2.5 rounded text-xs tracking-widest uppercase font-medium text-slate-500 hover:bg-slate-100 transition-colors">Cancel</button>
+                <button onclick="submitRegistration()" class="bg-navy text-surface px-6 py-2.5 rounded text-xs tracking-widest uppercase hover:bg-navy-light transition-colors">Register</button>
+            </div>
         </div>
     </div>
-</div>
-
 </body>
 </html>

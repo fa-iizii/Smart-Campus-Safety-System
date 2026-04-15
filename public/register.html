@@ -2,33 +2,39 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8"><title>SCSS | Register</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="style.css">
+    <script>
+        tailwind.config = { theme: { extend: { colors: { navy: { DEFAULT: '#0A192F', light: '#112240' }, gold: { DEFAULT: '#C5A059', light: '#D4AF37' }, surface: '#FAFAFA' } } } }
+    </script>
 </head>
-<body class="auth-bg">
-    <div class="auth-card">
-        <h2>Create Account</h2>
-        <p>Join the Smart Campus Safety System</p>
-        <div class="input-group">
-            <input type="text" id="reg-username" placeholder="Choose Username">
-            <input type="password" id="reg-password" placeholder="Choose Password">
+<body class="flex items-center justify-center min-h-screen">
+    <div class="glass-panel p-12 rounded-xl max-w-md w-full fade-up">
+        <div class="text-center mb-8">
+            <h2 class="text-3xl italic font-serif text-navy mb-2">Create Account</h2>
+            <p class="font-light text-slate-500 text-sm">Join the Smart Campus Safety System</p>
         </div>
-        <button onclick="handleRegister()" class="primary-btn">Register</button>
-        <p class="foot-note">Already have an account? <a href="login.html">Login here</a></p>
+        
+        <div class="flex flex-col gap-5 mb-8">
+            <input type="text" id="reg-username" placeholder="Choose Username" class="w-full px-4 py-3 bg-white border border-slate-200 rounded text-sm font-light text-navy focus:outline-none focus:border-gold transition-colors">
+            <input type="password" id="reg-password" placeholder="Choose Password" class="w-full px-4 py-3 bg-white border border-slate-200 rounded text-sm font-light text-navy focus:outline-none focus:border-gold transition-colors">
+        </div>
+        
+        <button onclick="handleRegister()" class="w-full bg-gold text-white px-8 py-3 rounded text-xs tracking-widest uppercase premium-hover hover:bg-gold-light mb-6">Register</button>
+        
+        <p class="text-center font-light text-xs text-slate-500">Already have an account? <a href="login.html" class="text-navy hover:text-navy-light transition-colors font-medium">Login here</a></p>
     </div>
 
     <script>
         async function handleRegister() {
             const u = document.getElementById('reg-username').value;
             const p = document.getElementById('reg-password').value;
-
             if(!u || !p) return alert("Please fill in all fields");
-
             const res = await fetch('/api/auth/register', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ username: u, password: p })
             });
-
             const data = await res.json();
             if (res.ok) {
                 alert("Registration successful! Redirecting to login...");

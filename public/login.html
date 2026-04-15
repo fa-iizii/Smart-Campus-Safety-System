@@ -1,20 +1,163 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8"><title>SCSS | Login</title>
-    <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCSS | Login</title>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Merriweather:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet">
+    
+    <!-- Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { 
+                        navy: { DEFAULT: '#0A192F', light: '#112240' }, 
+                        gold: { DEFAULT: '#C5A059', light: '#D4AF37' }, 
+                        surface: '#FAFAFA' 
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Merriweather', 'serif'],
+                    },
+                    animation: {
+                        'fade-in-up': 'fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                        'float': 'float 8s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        fadeInUp: {
+                            '0%': { opacity: '0', transform: 'translateY(20px)' },
+                            '100%': { opacity: '1', transform: 'translateY(0)' }
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-20px)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Custom CSS to match index.html -->
+    <style>
+        body {
+            background-color: #FAFAFA;
+            color: #0A192F;
+            overflow: hidden; /* Prevent scrolling on login page */
+        }
+
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.6);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 10px 40px rgba(10, 25, 47, 0.08);
+        }
+
+        .premium-hover {
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        .premium-hover:hover {
+            box-shadow: 0 10px 20px rgba(10, 25, 47, 0.15);
+            transform: translateY(-2px);
+        }
+    </style>
 </head>
-<body class="auth-bg">
-    <div class="auth-card">
-        <h2>SCSS Portal</h2>
-        <p>Login to your account</p>
-        <div class="input-group">
-            <input type="text" id="username" placeholder="Username">
-            <input type="password" id="password" placeholder="Password">
-        </div>
-        <button onclick="handleLogin()" class="primary-btn">Sign In</button>
-        <p class="foot-note">Don't have an account? <a href="register.html">Register</a></p>
+<body class="flex items-center justify-center min-h-screen relative selection:bg-gold selection:text-white antialiased">
+
+    <!-- Ambient Background Orbs -->
+    <div class="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
+        <div class="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-navy/5 blur-[100px] animate-float"></div>
+        <div class="absolute bottom-[-20%] right-[-10%] w-[60vw] h-[60vw] rounded-full bg-gold/10 blur-[150px] animate-float" style="animation-delay: 2s;"></div>
     </div>
+
+    <!-- Back to Home Button -->
+    <a href="index.html" class="absolute top-6 left-6 md:top-10 md:left-10 flex items-center gap-2 text-navy/60 hover:text-navy transition-colors font-medium text-sm tracking-wide z-50 group">
+        <div class="w-8 h-8 rounded-full bg-navy/5 flex items-center justify-center group-hover:bg-navy/10 transition-colors">
+            <i data-lucide="arrow-left" class="w-4 h-4"></i>
+        </div>
+        <span class="hidden sm:inline">Back to Main Page</span>
+    </a>
+
+    <!-- Login Panel -->
+    <div class="glass-panel p-10 md:p-12 rounded-2xl max-w-md w-full mx-4 opacity-0 animate-fade-in-up">
+        
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <div class="inline-flex items-center justify-center p-3 bg-navy/5 rounded-xl mb-4">
+                <i data-lucide="shield" class="w-6 h-6 text-gold"></i>
+            </div>
+            <h2 class="text-3xl italic font-serif text-navy mb-2">SCSS Portal</h2>
+            <p class="font-light text-slate-500 text-sm tracking-wide">Secure Institutional Access</p>
+        </div>
+        
+        <!-- Form Fields -->
+        <div class="flex flex-col gap-5 mb-8">
+            <!-- Username -->
+            <div class="relative group">
+                <i data-lucide="user" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-gold transition-colors"></i>
+                <input type="text" id="username" placeholder="Username" class="w-full pl-11 pr-4 py-3.5 bg-white/80 border border-slate-200 rounded-lg text-sm font-light text-navy focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold/30 transition-all placeholder:text-slate-400">
+            </div>
+            
+            <!-- Password with Toggle -->
+            <div class="relative group">
+                <i data-lucide="lock" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-gold transition-colors pointer-events-none"></i>
+                <input type="password" id="password" placeholder="Password" class="w-full pl-11 pr-12 py-3.5 bg-white/80 border border-slate-200 rounded-lg text-sm font-light text-navy focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold/30 transition-all placeholder:text-slate-400">
+                
+                <!-- Toggle Button -->
+                <button type="button" onclick="togglePassword()" class="absolute right-3 top-1/2 -translate-y-1/2 p-2 text-slate-400 hover:text-navy transition-colors focus:outline-none rounded-md hover:bg-slate-100">
+                    <i data-lucide="eye" id="eye-icon" class="w-4 h-4"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Actions -->
+        <button onclick="handleLogin()" class="w-full bg-navy text-surface px-8 py-3.5 rounded-lg text-xs tracking-widest uppercase premium-hover hover:bg-navy-light mb-6 font-medium shadow-md shadow-navy/10">
+            Sign In
+        </button>
+        
+        <!-- Footer Link -->
+        <p class="text-center font-light text-xs text-slate-500">
+            Don't have an account? <a href="register.html" class="text-gold hover:text-gold-light transition-colors font-medium relative after:content-[''] after:absolute after:w-full after:h-[1px] after:bg-gold after:left-0 after:-bottom-1 after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:origin-left">Register</a>
+        </p>
+    </div>
+
+    <script>
+        // Initialize Icons
+        lucide.createIcons();
+
+        // Password Toggle Logic
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const eyeIconDiv = document.getElementById('eye-icon');
+            const toggleButton = eyeIconDiv.parentElement;
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                eyeIconDiv.setAttribute('data-lucide', 'eye-off');
+                toggleButton.classList.add('text-gold'); // Highlight icon when showing password
+            } else {
+                passwordInput.type = 'password';
+                eyeIconDiv.setAttribute('data-lucide', 'eye');
+                toggleButton.classList.remove('text-gold');
+            }
+            
+            // Re-render the specific icon that changed
+            lucide.createIcons();
+        }
+    </script>
+    
+    <!-- Restore external login logic -->
     <script src="login.js"></script>
 </body>
 </html>

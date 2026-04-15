@@ -2,14 +2,23 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8"><title>SCSS | User Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="style.css">
+    <script>
+        tailwind.config = { theme: { extend: { colors: { navy: { DEFAULT: '#0A192F', light: '#112240' }, gold: { DEFAULT: '#C5A059', light: '#D4AF37' }, surface: '#FAFAFA' } } } }
+    </script>
 </head>
-<body>
-    <div class="card portal-card">
-        <h2>Welcome, <span id="user-name">User</span></h2>
-        <div class="menu-grid">
-            <button onclick="location.href='user-chat.html'" class="menu-btn">💬 Report Incident / Chat</button>
-            <button onclick="logout()" class="logout-btn">Logout</button>
+<body class="flex items-center justify-center min-h-screen">
+    <div class="glass-panel p-12 rounded-xl max-w-lg w-full fade-up">
+        <h2 class="text-3xl italic font-serif text-navy mb-8 text-center">Welcome, <span id="user-name" class="text-gold font-normal">User</span></h2>
+        
+        <div class="grid grid-cols-1 gap-4">
+            <button onclick="location.href='user-chat.html'" class="flex items-center justify-center gap-3 w-full bg-white border border-slate-200 text-navy px-6 py-4 rounded text-sm font-medium premium-hover hover:border-gold">
+                <span class="text-lg">💬</span> Report Incident / Chat
+            </button>
+            <button onclick="logout()" class="w-full bg-transparent border border-slate-300 text-slate-500 px-6 py-3 rounded text-xs tracking-widest uppercase mt-4 hover:bg-slate-100 transition-colors">
+                Logout
+            </button>
         </div>
     </div>
     <script>
