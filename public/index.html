@@ -5,15 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SCSS | Smart Campus Safety System</title>
     
-    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Merriweather:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Merriweather:ital,wght@0,300;0,400;1,300;1,400&family=JetBrains+Mono:wght@100..800&display=swap" rel="stylesheet">
     
-    <!-- Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
-
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -27,15 +23,15 @@
                     fontFamily: {
                         sans: ['Inter', 'sans-serif'],
                         serif: ['Merriweather', 'serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
                     }
                 }
             }
         }
     </script>
 
-    <!-- Custom CSS for Glassmorphism & Cursors -->
     <style>
-        /* Hide default cursor on desktop to use our custom one */
+        /* Hide default cursor on fine pointers */
         @media (pointer: fine) {
             body, a, button, input { cursor: none; }
         }
@@ -44,10 +40,19 @@
             background-color: #FAFAFA;
             color: #0A192F;
             overflow-x: hidden;
-            visibility: hidden; /* Prevent FOUC */
+            visibility: hidden;
         }
 
-        /* Cinematic Film Grain Overlay */
+        /* 1. The Architectural Grid */
+        .bg-grid {
+            background-size: 40px 40px;
+            background-image:
+                linear-gradient(to right, rgba(10, 25, 47, 0.03) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(10, 25, 47, 0.03) 1px, transparent 1px);
+            mask-image: radial-gradient(circle at center, black 30%, transparent 90%);
+            -webkit-mask-image: radial-gradient(circle at center, black 30%, transparent 90%);
+        }
+
         .noise-overlay {
             position: fixed;
             inset: 0;
@@ -57,70 +62,64 @@
             background-image: url('data:image/svg+xml;utf8,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noiseFilter)"/%3E%3C/svg%3E');
         }
 
-        /* Custom Cursor Elements */
-        .cursor-dot, .cursor-outline {
+        /* 2. Advanced Difference Cursor */
+        .custom-cursor {
             position: fixed;
             top: 0; left: 0;
-            pointer-events: none;
+            width: 16px; height: 16px;
+            background-color: white;
             border-radius: 50%;
+            pointer-events: none;
             z-index: 9999;
+            mix-blend-mode: difference;
             transform: translate(-50%, -50%);
-            display: none; /* hidden by default, revealed via JS on desktop */
-        }
-        
-        .cursor-dot {
-            width: 6px;
-            height: 6px;
-            background-color: #C5A059;
+            transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1), height 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        .cursor-outline {
-            width: 40px;
-            height: 40px;
-            border: 1px solid rgba(197, 160, 89, 0.6);
-            transition: width 0.2s, height 0.2s, background-color 0.2s;
+        .custom-cursor.hovered {
+            width: 64px; height: 64px;
         }
 
-        /* Smooth Scrolling Lenis Recommended Styles */
         html.lenis { height: auto; }
         .lenis.lenis-smooth { scroll-behavior: auto !important; }
         .lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
         .lenis.lenis-stopped { overflow: hidden; }
-        .lenis.lenis-scrolling iframe { pointer-events: none; }
 
-        /* Glassmorphism */
         .glass-panel {
-            background: rgba(255, 255, 255, 0.5);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.8);
-            box-shadow: 0 10px 40px rgba(10, 25, 47, 0.05);
+            background: rgba(250, 250, 250, 0.6);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(10, 25, 47, 0.05);
+            box-shadow: 0 20px 40px rgba(10, 25, 47, 0.03);
         }
 
         .glass-card {
-            background: rgba(255, 255, 255, 0.6);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.7);
-            /* Removed native transition for transform so GSAP handles 3D tilt smoothly */
-            transition: border-color 0.4s ease, box-shadow 0.4s ease;
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(10, 25, 47, 0.05);
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(197, 160, 89, 0.4), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .glass-card:hover {
-            border-color: rgba(197, 160, 89, 0.4); 
-            box-shadow: 0 30px 60px rgba(10, 25, 47, 0.1);
-            z-index: 20;
+            border-color: rgba(197, 160, 89, 0.2); 
+            box-shadow: 0 30px 60px rgba(10, 25, 47, 0.08);
+            transform: translateY(-5px);
         }
 
-        .premium-hover {
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        
-        .premium-hover:hover {
-            box-shadow: 0 15px 30px rgba(10, 25, 47, 0.15);
-            transform: translateY(-3px);
+        .glass-card:hover::before {
+            transform: translateX(100%);
         }
 
-        /* Text Masking for Premium Slide-Up Effect */
         .text-mask {
             overflow: hidden;
             display: inline-block;
@@ -128,170 +127,215 @@
         }
     </style>
 
-    <!-- Lenis (Smooth Scroll) & GSAP (Animations) -->
     <script src="https://unpkg.com/@studio-freight/lenis@1.0.42/dist/lenis.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 </head>
-<body class="antialiased selection:bg-gold selection:text-white">
+<body class="antialiased selection:bg-navy selection:text-surface">
 
-    <!-- Texture Overlay -->
     <div class="noise-overlay"></div>
+    <div class="fixed inset-0 bg-grid pointer-events-none -z-20"></div>
+    
+    <div class="custom-cursor"></div>
 
-    <!-- Custom Cursor -->
-    <div class="cursor-dot"></div>
-    <div class="cursor-outline"></div>
-
-    <!-- Ambient Background Orbs (Parallax Setup) -->
-    <div class="fixed inset-0 -z-10 overflow-hidden pointer-events-none bg-surface">
-        <div id="orb1" class="absolute top-[-10%] left-[-10%] w-[50vw] h-[50vw] rounded-full bg-navy/5 blur-[100px] will-change-transform"></div>
-        <div id="orb2" class="absolute top-[40%] right-[-10%] w-[40vw] h-[40vw] rounded-full bg-gold/10 blur-[120px] will-change-transform"></div>
-        <div id="orb3" class="absolute bottom-[-20%] left-[20%] w-[60vw] h-[60vw] rounded-full bg-blue-100/30 blur-[150px] will-change-transform"></div>
+    <div class="fixed inset-0 -z-10 overflow-hidden pointer-events-none mix-blend-multiply">
+        <div id="orb1" class="absolute top-[-10%] left-[10%] w-[40vw] h-[40vw] rounded-full bg-navy/5 blur-[120px] will-change-transform"></div>
+        <div id="orb2" class="absolute bottom-[10%] right-[10%] w-[35vw] h-[35vw] rounded-full bg-gold/10 blur-[120px] will-change-transform"></div>
     </div>
 
-    <!-- Navigation -->
-    <nav class="fixed w-full z-40 glass-panel border-b-0 border-white/50 px-6 py-4 nav-element">
+    <nav class="fixed w-full z-40 bg-surface/40 backdrop-blur-md border-b border-navy/5 px-6 py-4 nav-element">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
-            <div class="flex items-center gap-2 text-navy font-serif italic font-light hover-trigger cursor-pointer">
-                <i data-lucide="shield-check" class="w-6 h-6 text-gold"></i>
-                <span class="text-xl tracking-wider">SCSS</span>
+            <div class="flex items-center gap-2 text-navy font-serif italic hover-trigger cursor-pointer magnetic-el">
+                <i data-lucide="shield-check" class="w-5 h-5 text-gold"></i>
+                <span class="text-lg tracking-widest font-semibold">SCSS</span>
             </div>
-            <!-- Replaced Explore text with Login per previous structure, keeping it a hover trigger -->
-            <button onclick="location.href='login.html'" class="text-xs tracking-widest uppercase text-navy hover:text-gold transition-colors font-medium hover-trigger">
-                Portal Login
+            <button onclick="location.href='login.html'" class="text-xs tracking-widest uppercase text-navy hover:text-gold transition-colors font-mono font-medium hover-trigger magnetic-el">
+                [ Portal Login ]
             </button>
         </div>
     </nav>
 
-    <!-- Hero Section -->
     <header class="relative flex flex-col items-center justify-center min-h-screen px-4 pt-20 overflow-hidden z-10">
-        <div class="glass-panel p-10 md:p-16 rounded-2xl text-center max-w-2xl hero-panel">
-            <div class="inline-flex items-center justify-center p-3 bg-navy/5 rounded-full mb-6 hero-elem">
+        <div class="glass-panel p-10 md:p-20 rounded-2xl text-center max-w-4xl hero-panel shadow-2xl relative">
+            
+            <div class="absolute top-4 left-4 w-4 h-4 border-t border-l border-navy/20"></div>
+            <div class="absolute top-4 right-4 w-4 h-4 border-t border-r border-navy/20"></div>
+            <div class="absolute bottom-4 left-4 w-4 h-4 border-b border-l border-navy/20"></div>
+            <div class="absolute bottom-4 right-4 w-4 h-4 border-b border-r border-navy/20"></div>
+
+            <div class="inline-flex items-center justify-center p-4 border border-navy/10 rounded-full mb-8 hero-elem hover-trigger">
                 <i data-lucide="cpu" class="w-6 h-6 text-gold"></i>
             </div>
             
-            <h1 class="text-4xl md:text-6xl italic font-serif text-navy mb-6 tracking-wide leading-tight flex flex-col items-center gap-2">
+            <h1 class="text-5xl md:text-7xl italic font-serif text-navy mb-8 tracking-tight leading-tight flex flex-col items-center gap-2">
                 <span class="text-mask"><span class="block hero-title-line">Smart Campus</span></span>
-                <span class="text-mask"><span class="block hero-title-line">Safety System</span></span>
+                <span class="text-mask"><span class="block hero-title-line text-navy/80">Safety System.</span></span>
             </h1>
             
-            <p class="font-light text-slate-600 mb-10 leading-relaxed text-base md:text-lg hero-elem max-w-xl mx-auto">
-                Bridging the gap between automated physical security and human reporting. A centralized platform integrating real-time IoT monitoring with institutional incident management.
+            <p class="font-light text-slate-500 mb-12 leading-relaxed text-base md:text-lg hero-elem max-w-2xl mx-auto">
+                Bridging the gap between automated physical security and human reporting. A centralized API platform integrating ESP32 real-time monitoring with institutional incident management.
             </p>
             
-            <div class="flex flex-col sm:flex-row gap-4 justify-center hero-elem">
-                <button onclick="location.href='login.html'" class="bg-navy text-surface px-10 py-4 rounded text-xs tracking-widest uppercase premium-hover hover:bg-navy-light w-full sm:w-auto font-medium shadow-lg shadow-navy/20 hover-trigger">
-                    Enter Portal
+            <div class="flex flex-col sm:flex-row gap-6 justify-center hero-elem">
+                <button onclick="location.href='login.html'" class="magnetic-el bg-navy text-surface px-12 py-4 rounded-sm text-xs tracking-widest uppercase hover:bg-navy-light w-full sm:w-auto font-medium shadow-lg hover-trigger transition-colors">
+                    Initialize Portal
                 </button>
-                <button onclick="lenis.scrollTo('#features')" class="bg-transparent border border-navy/20 text-navy px-10 py-4 rounded text-xs tracking-widest uppercase premium-hover hover:bg-navy/5 w-full sm:w-auto font-medium hover-trigger">
-                    Explore Features
+                <button onclick="lenis.scrollTo('#features')" class="magnetic-el bg-transparent border border-navy/20 text-navy px-12 py-4 rounded-sm text-xs tracking-widest uppercase hover:bg-navy/5 w-full sm:w-auto font-medium hover-trigger transition-colors">
+                    System Architecture
                 </button>
             </div>
         </div>
         
-        <!-- Scroll indicator -->
         <div class="absolute bottom-10 hero-elem opacity-50 scroll-indicator">
-            <i data-lucide="chevron-down" class="w-6 h-6 text-navy"></i>
+            <div class="w-[1px] h-12 bg-gradient-to-b from-navy to-transparent mx-auto"></div>
         </div>
     </header>
 
-    <!-- Features Section -->
     <section id="features" class="py-32 px-6 max-w-7xl mx-auto relative z-10">
-        <div class="text-center mb-20 section-header">
-            <div class="text-mask mb-3">
-                <h2 class="text-sm font-semibold tracking-widest uppercase text-gold block section-subtitle">Core Capabilities</h2>
+        <div class="text-center mb-24 section-header">
+            <div class="text-mask mb-4">
+                <h2 class="text-xs font-mono tracking-[0.2em] uppercase text-gold block section-subtitle">// Core Capabilities</h2>
             </div>
             <div class="text-mask">
-                <h3 class="text-4xl md:text-5xl italic font-serif text-navy block section-title">Comprehensive Security Management</h3>
+                <h3 class="text-4xl md:text-5xl italic font-serif text-navy block section-title tracking-tight">Security Dashboard</h3>
             </div>
         </div>
 
-        <!-- perspective added to parent for 3D effect -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12" style="perspective: 1000px;">
-            <!-- Feature 1 -->
-            <div class="glass-card p-10 rounded-3xl feature-card hover-trigger-card">
-                <div class="w-14 h-14 bg-navy/5 rounded-2xl flex items-center justify-center mb-8 border border-navy/10 pointer-events-none">
-                    <i data-lucide="radio" class="w-7 h-7 text-gold"></i>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
+            <div class="glass-card p-12 rounded-2xl animate-card hover-trigger" data-speed="1.1">
+                <div class="w-12 h-12 border border-navy/10 rounded-lg flex items-center justify-center mb-8 bg-surface">
+                    <i data-lucide="radio" class="w-5 h-5 text-navy"></i>
                 </div>
-                <h4 class="text-2xl font-serif text-navy mb-4 pointer-events-none">Real-time IoT Monitoring</h4>
-                <p class="text-slate-500 font-light leading-relaxed text-base pointer-events-none">
-                    Live tracking of fire exit doors via distance sensors and environmental tracking (DHT11 Temperature & Humidity) powered by ESP32 microcontrollers.
+                <h4 class="text-2xl font-serif text-navy mb-4">IoT Sensor Logging</h4>
+                <p class="text-slate-500 font-light leading-relaxed text-sm">
+                    Live environmental tracking featuring DHT11 Temperature & Humidity data, paired with ultrasonic sensors to determine precise OPEN/CLOSED status of critical campus fire exits.
                 </p>
             </div>
 
-            <!-- Feature 2 -->
-            <div class="glass-card p-10 rounded-3xl feature-card hover-trigger-card md:translate-y-12">
-                <div class="w-14 h-14 bg-navy/5 rounded-2xl flex items-center justify-center mb-8 border border-navy/10 pointer-events-none">
-                    <i data-lucide="file-warning" class="w-7 h-7 text-gold"></i>
+            <div class="glass-card p-12 rounded-2xl animate-card hover-trigger mt-0 md:mt-16" data-speed="0.9">
+                <div class="w-12 h-12 border border-navy/10 rounded-lg flex items-center justify-center mb-8 bg-surface">
+                    <i data-lucide="image" class="w-5 h-5 text-navy"></i>
                 </div>
-                <h4 class="text-2xl font-serif text-navy mb-4 pointer-events-none">Incident Reporting</h4>
-                <p class="text-slate-500 font-light leading-relaxed text-base pointer-events-none">
-                    Empowering users to submit detailed safety reports directly to the dashboard, including precise locations, severity levels, and photographic evidence.
+                <h4 class="text-2xl font-serif text-navy mb-4">Visual Incident Reports</h4>
+                <p class="text-slate-500 font-light leading-relaxed text-sm">
+                    Empowering users to submit detailed hazards directly to the database. Features secure image uploads routed through <code>multer</code> middleware for accurate photographic evidence.
                 </p>
             </div>
 
-            <!-- Feature 3 -->
-            <div class="glass-card p-10 rounded-3xl feature-card hover-trigger-card">
-                <div class="w-14 h-14 bg-navy/5 rounded-2xl flex items-center justify-center mb-8 border border-navy/10 pointer-events-none">
-                    <i data-lucide="message-square" class="w-7 h-7 text-gold"></i>
+            <div class="glass-card p-12 rounded-2xl animate-card hover-trigger" data-speed="1.1">
+                <div class="w-12 h-12 border border-navy/10 rounded-lg flex items-center justify-center mb-8 bg-surface">
+                    <i data-lucide="message-square" class="w-5 h-5 text-navy"></i>
                 </div>
-                <h4 class="text-2xl font-serif text-navy mb-4 pointer-events-none">Direct Messaging</h4>
-                <p class="text-slate-500 font-light leading-relaxed text-base pointer-events-none">
-                    A secure, built-in chat interface facilitating immediate, two-way communication between campus users and the centralized security team during critical events.
+                <h4 class="text-2xl font-serif text-navy mb-4">Direct JWT Messaging</h4>
+                <p class="text-slate-500 font-light leading-relaxed text-sm">
+                    A secure, built-in chat interface facilitating immediate, two-way communication between students and the centralized security team, fully protected by JSON Web Tokens.
                 </p>
             </div>
 
-            <!-- Feature 4 -->
-            <div class="glass-card p-10 rounded-3xl feature-card hover-trigger-card md:translate-y-12">
-                <div class="w-14 h-14 bg-navy/5 rounded-2xl flex items-center justify-center mb-8 border border-navy/10 pointer-events-none">
-                    <i data-lucide="users" class="w-7 h-7 text-gold"></i>
+            <div class="glass-card p-12 rounded-2xl animate-card hover-trigger mt-0 md:mt-16" data-speed="0.9">
+                <div class="w-12 h-12 border border-navy/10 rounded-lg flex items-center justify-center mb-8 bg-surface">
+                    <i data-lucide="shield-alert" class="w-5 h-5 text-navy"></i>
                 </div>
-                <h4 class="text-2xl font-serif text-navy mb-4 pointer-events-none">Role-Based Access (RBAC)</h4>
-                <p class="text-slate-500 font-light leading-relaxed text-base pointer-events-none">
-                    Strict security separation ensuring that standard users (students/staff) and the security team have optimized interfaces tailored to their specific responsibilities.
+                <h4 class="text-2xl font-serif text-navy mb-4">Automated Firmware Alarms</h4>
+                <p class="text-slate-500 font-light leading-relaxed text-sm">
+                    The server dynamically responds to ESP32 POST requests with actionable commands (e.g., <code>sound_alarm: true</code>), instantly triggering local firmware buzzers during breaches.
                 </p>
             </div>
         </div>
     </section>
 
-    <!-- About / Project Context Section -->
-    <section class="py-32 px-6 border-t border-navy/5 relative overflow-hidden z-10 mt-12 md:mt-0">
-        <div class="max-w-4xl mx-auto text-center about-content">
-            <div class="text-mask mb-8">
-                <h2 class="text-3xl md:text-4xl italic font-serif text-navy block about-title">About the System</h2>
+    <section class="py-32 px-6 max-w-7xl mx-auto relative z-10 border-t border-navy/5">
+        <div class="text-center mb-24 section-header-2">
+            <div class="text-mask mb-4">
+                <h2 class="text-xs font-mono tracking-[0.2em] uppercase text-gold block section-subtitle-2">// Under The Hood</h2>
             </div>
-            <p class="text-slate-600 font-light leading-relaxed mb-12 text-lg md:text-xl about-text">
-                Developed as a Final Year Project for the BSc (Hons) Applied Computing program at the <strong>University of Huddersfield</strong>. SCSS utilizes a robust tech stack including Node.js, MySQL, and C++ for ESP32 firmware, resulting in a highly reliable and secure environment for modern campus safety.
-            </p>
-            <div class="flex flex-wrap justify-center gap-4 text-sm font-medium text-navy/80 about-tags">
-                <span class="px-5 py-2.5 glass-card rounded-full shadow-sm tech-tag hover-trigger cursor-pointer">Node.js</span>
-                <span class="px-5 py-2.5 glass-card rounded-full shadow-sm tech-tag hover-trigger cursor-pointer">Express</span>
-                <span class="px-5 py-2.5 glass-card rounded-full shadow-sm tech-tag hover-trigger cursor-pointer">MySQL</span>
-                <span class="px-5 py-2.5 glass-card rounded-full shadow-sm tech-tag hover-trigger cursor-pointer">ESP32 IoT</span>
-                <span class="px-5 py-2.5 glass-card rounded-full shadow-sm tech-tag hover-trigger cursor-pointer">JWT Auth</span>
+            <div class="text-mask">
+                <h3 class="text-4xl md:text-5xl italic font-serif text-navy block section-title-2 tracking-tight">System Architecture</h3>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="glass-card p-10 rounded-xl animate-card hover-trigger">
+                <div class="flex justify-between items-start mb-6 border-b border-navy/5 pb-6">
+                    <div class="w-10 h-10 bg-navy text-surface rounded-md flex items-center justify-center">
+                        <i data-lucide="microchip" class="w-5 h-5 text-gold"></i>
+                    </div>
+                    <span class="text-[10px] font-mono text-navy/40">NODE_01</span>
+                </div>
+                <h4 class="text-lg font-bold text-navy mb-3">ESP32 Firmware</h4>
+                <p class="text-slate-500 font-light text-sm mb-6">
+                    C++ firmware processing local ultrasonic and DHT11 data, posting to the central API.
+                </p>
+                <ul class="text-xs font-mono text-navy/70 space-y-3">
+                    <li class="flex items-center gap-2"><div class="w-1 h-1 bg-gold rounded-full"></div> x-api-key auth</li>
+                    <li class="flex items-center gap-2"><div class="w-1 h-1 bg-gold rounded-full"></div> Buzzer toggles</li>
+                    <li class="flex items-center gap-2"><div class="w-1 h-1 bg-gold rounded-full"></div> WiFi payload TX</li>
+                </ul>
+            </div>
+
+            <div class="glass-card p-10 rounded-xl animate-card hover-trigger">
+                <div class="flex justify-between items-start mb-6 border-b border-navy/5 pb-6">
+                    <div class="w-10 h-10 bg-navy text-surface rounded-md flex items-center justify-center">
+                        <i data-lucide="server" class="w-5 h-5 text-gold"></i>
+                    </div>
+                    <span class="text-[10px] font-mono text-navy/40">NODE_02</span>
+                </div>
+                <h4 class="text-lg font-bold text-navy mb-3">Node.js API</h4>
+                <p class="text-slate-500 font-light text-sm mb-6">
+                    An Express.js backend handling routing, authentication, and file processing.
+                </p>
+                <ul class="text-xs font-mono text-navy/70 space-y-3">
+                    <li class="flex items-center gap-2"><div class="w-1 h-1 bg-gold rounded-full"></div> Controllers</li>
+                    <li class="flex items-center gap-2"><div class="w-1 h-1 bg-gold rounded-full"></div> JWT Verification</li>
+                    <li class="flex items-center gap-2"><div class="w-1 h-1 bg-gold rounded-full"></div> Multer Image IO</li>
+                </ul>
+            </div>
+
+            <div class="glass-card p-10 rounded-xl animate-card hover-trigger">
+                <div class="flex justify-between items-start mb-6 border-b border-navy/5 pb-6">
+                    <div class="w-10 h-10 bg-navy text-surface rounded-md flex items-center justify-center">
+                        <i data-lucide="database" class="w-5 h-5 text-gold"></i>
+                    </div>
+                    <span class="text-[10px] font-mono text-navy/40">NODE_03</span>
+                </div>
+                <h4 class="text-lg font-bold text-navy mb-3">MySQL Database</h4>
+                <p class="text-slate-500 font-light text-sm mb-6">
+                    Relational storage managed via connection pooling for rapid read/write operations.
+                </p>
+                <ul class="text-xs font-mono text-navy/70 space-y-3">
+                    <li class="flex items-center gap-2"><div class="w-1 h-1 bg-gold rounded-full"></div> Password hashing</li>
+                    <li class="flex items-center gap-2"><div class="w-1 h-1 bg-gold rounded-full"></div> Cron data pruning</li>
+                    <li class="flex items-center gap-2"><div class="w-1 h-1 bg-gold rounded-full"></div> Chat history logs</li>
+                </ul>
             </div>
         </div>
     </section>
 
-    <!-- Footer -->
-    <footer class="bg-navy text-surface/70 py-16 px-6 relative z-10">
+    <footer class="bg-navy text-surface/70 py-16 px-6 relative z-10 border-t border-gold/20">
         <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-8 footer-content">
-            <div class="flex items-center gap-2 text-surface font-serif italic font-light hover-trigger cursor-pointer">
-                <i data-lucide="shield-check" class="w-6 h-6 text-gold"></i>
-                <span class="tracking-wider text-xl">SCSS</span>
+            <div class="flex flex-col items-center md:items-start gap-2">
+                <div class="flex items-center gap-2 text-surface font-serif italic hover-trigger cursor-pointer">
+                    <i data-lucide="shield-check" class="w-5 h-5 text-gold"></i>
+                    <span class="tracking-widest text-lg font-semibold">SCSS</span>
+                </div>
+                <p class="text-xs font-mono text-surface/40 mt-2">
+                    Final Year Project — BSc (Hons) Applied Computing Top-Up | University of Huddersfield
+                </p>
             </div>
-            <p class="text-sm font-light tracking-wide text-center md:text-left text-surface/50">
-                &copy; <script>document.write(new Date().getFullYear())</script> Smart Campus Safety System.<br class="md:hidden"/> University of Huddersfield FYP.
-            </p>
-            <div class="flex gap-4">
-                <a href="https://github.com/fa-iizii/Smart-Campus-Safety-System" target="_blank" class="hover:text-gold transition-colors hover-trigger">
-                    <i data-lucide="github" class="w-6 h-6"></i>
+            
+            <div class="text-center md:text-right flex flex-col items-center md:items-end gap-3">
+                <a href="https://github.com/fa-iizii/Smart-Campus-Safety-System" target="_blank" class="flex items-center gap-2 hover:text-gold transition-colors hover-trigger group text-sm font-light">
+                    <i data-lucide="github" class="w-5 h-5"></i>
+                    <span class="group-hover:underline underline-offset-4 font-mono text-xs tracking-wider">github.com/fa-iizii/Smart-Campus-Safety-System: Smart Campus Safety System</span>
                 </a>
+                
+                <p class="text-xs font-light tracking-wide text-surface/60 mt-2">
+                    &copy; <script>document.write(new Date().getFullYear())</script> Faiz muhammed | <a href="https://github.com/fa-iizii" target="_blank" class="hover:text-surface transition-colors hover-trigger">github.com/fa-iizii</a>
+                </p>
             </div>
         </div>
     </footer>
 
-    <!-- Initialization Scripts -->
     <script>
         // 1. Initialize Icons
         lucide.createIcons();
@@ -301,198 +345,117 @@
             duration: 1.2,
             easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)), 
             direction: 'vertical',
-            gestureDirection: 'vertical',
             smooth: true,
-            mouseMultiplier: 1,
-            smoothTouch: false,
-            touchMultiplier: 2,
-            infinite: false,
         });
 
-        // Integrate Lenis with GSAP ScrollTrigger
         lenis.on('scroll', ScrollTrigger.update);
         gsap.ticker.add((time) => { lenis.raf(time * 1000); });
         gsap.ticker.lagSmoothing(0);
 
         // 3. GSAP Animations Setup
         gsap.registerPlugin(ScrollTrigger);
-
-        // Prevent FOUC
         document.body.style.visibility = "visible";
 
-        // ==========================================
-        // MOUSE TRACKING & INTERACTIVITY
-        // ==========================================
+        // 4. ADVANCED DIFFERENCE CURSOR
+        const cursor = document.querySelector('.custom-cursor');
         
-        const cursorDot = document.querySelector('.cursor-dot');
-        const cursorOutline = document.querySelector('.cursor-outline');
-        
-        // Only activate custom cursor on devices with a real mouse
         if (window.matchMedia("(pointer: fine)").matches) {
-            cursorDot.style.display = 'block';
-            cursorOutline.style.display = 'block';
+            cursor.style.display = 'block';
+        } else {
+            cursor.style.display = 'none';
         }
 
-        let mouseX = 0;
-        let mouseY = 0;
+        let mouseX = window.innerWidth / 2;
+        let mouseY = window.innerHeight / 2;
 
         window.addEventListener('mousemove', (e) => {
             mouseX = e.clientX;
             mouseY = e.clientY;
+            
+            // Move cursor
+            gsap.to(cursor, { x: mouseX, y: mouseY, duration: 0.15, ease: "power2.out" });
 
-            // 1. Move Custom Cursor
-            gsap.to(cursorDot, { x: mouseX, y: mouseY, duration: 0.1, ease: "power2.out" });
-            gsap.to(cursorOutline, { x: mouseX, y: mouseY, duration: 0.5, ease: "power3.out" });
-
-            // 2. Mouse-Tracked Parallax Background Orbs
-            // Calculate normalized mouse position (-1 to 1) relative to center of screen
+            // Parallax Background Orbs
             const xNorm = (mouseX / window.innerWidth - 0.5) * 2;
             const yNorm = (mouseY / window.innerHeight - 0.5) * 2;
-
-            gsap.to("#orb1", { x: xNorm * 50, y: yNorm * 50, duration: 1.5, ease: "power2.out" });
-            gsap.to("#orb2", { x: xNorm * -70, y: yNorm * -70, duration: 1.5, ease: "power2.out" });
-            gsap.to("#orb3", { x: xNorm * 40, y: yNorm * 40, duration: 1.5, ease: "power2.out" });
+            gsap.to("#orb1", { x: xNorm * 30, y: yNorm * 30, duration: 2, ease: "power2.out" });
+            gsap.to("#orb2", { x: xNorm * -40, y: yNorm * -40, duration: 2, ease: "power2.out" });
         });
 
-        // 3. Cursor Hover States (Morphing cursor over links/buttons)
-        document.querySelectorAll('.hover-trigger, button, a').forEach(el => {
-            el.addEventListener('mouseenter', () => {
-                gsap.to(cursorOutline, { 
-                    scale: 1.6, 
-                    backgroundColor: 'rgba(197, 160, 89, 0.15)',
-                    borderColor: 'rgba(10, 25, 47, 0.2)',
-                    duration: 0.3 
-                });
-                gsap.to(cursorDot, { scale: 0, duration: 0.3 });
-            });
-            el.addEventListener('mouseleave', () => {
-                gsap.to(cursorOutline, { 
-                    scale: 1, 
-                    backgroundColor: 'transparent',
-                    borderColor: 'rgba(197, 160, 89, 0.6)',
-                    duration: 0.3 
-                });
-                gsap.to(cursorDot, { scale: 1, duration: 0.3 });
-            });
+        // Cursor Hover Effects
+        document.querySelectorAll('.hover-trigger, a, button').forEach(el => {
+            el.addEventListener('mouseenter', () => cursor.classList.add('hovered'));
+            el.addEventListener('mouseleave', () => cursor.classList.remove('hovered'));
         });
 
-        // 4. 3D Card Tilt Effect on Hover
-        document.querySelectorAll('.feature-card').forEach(card => {
-            card.addEventListener('mousemove', (e) => {
-                const rect = card.getBoundingClientRect();
-                const x = e.clientX - rect.left; // x position within the element.
-                const y = e.clientY - rect.top;  // y position within the element.
+        // 5. MAGNETIC BUTTONS
+        document.querySelectorAll('.magnetic-el').forEach(btn => {
+            btn.addEventListener('mousemove', (e) => {
+                const rect = btn.getBoundingClientRect();
+                const h = rect.width / 2;
+                const v = rect.height / 2;
+                const x = e.clientX - rect.left - h;
+                const y = e.clientY - rect.top - v;
                 
-                const centerX = rect.width / 2;
-                const centerY = rect.height / 2;
-                
-                // Calculate rotation (max 15 degrees)
-                const rotateX = ((y - centerY) / centerY) * -15;
-                const rotateY = ((x - centerX) / centerX) * 15;
-
-                gsap.to(card, {
-                    rotateX: rotateX,
-                    rotateY: rotateY,
-                    ease: "power2.out",
-                    duration: 0.5
-                });
+                gsap.to(btn, { x: x * 0.3, y: y * 0.3, duration: 0.4, ease: "power2.out" });
             });
-
-            card.addEventListener('mouseleave', () => {
-                // Snap back to zero when mouse leaves
-                gsap.to(card, {
-                    rotateX: 0,
-                    rotateY: 0,
-                    ease: "power3.out",
-                    duration: 0.8
-                });
+            btn.addEventListener('mouseleave', () => {
+                gsap.to(btn, { x: 0, y: 0, duration: 0.7, ease: "elastic.out(1, 0.3)" });
             });
         });
 
-        // ==========================================
-        // SCROLL & LOAD ANIMATIONS
-        // ==========================================
-
-        // --- A. Master Load Timeline (Hero Section) ---
+        // 6. SCROLL ANIMATIONS
         const tlLoad = gsap.timeline({ defaults: { ease: "power4.out" } });
 
         gsap.set(".hero-title-line", { yPercent: 100 });
         gsap.set(".nav-element", { yPercent: -100, opacity: 0 });
-        gsap.set(".hero-panel", { opacity: 0, scale: 0.95 });
-        gsap.set(".hero-elem", { y: 30, opacity: 0 });
+        gsap.set(".hero-panel", { opacity: 0, y: 40 });
+        gsap.set(".hero-elem", { y: 20, opacity: 0 });
         
         tlLoad
-            .to(".nav-element", { yPercent: 0, opacity: 1, duration: 1.2, ease: "power3.out" }, 0.2)
-            .to(".hero-panel", { opacity: 1, scale: 1, duration: 1.5 }, 0.4)
+            .to(".nav-element", { yPercent: 0, opacity: 1, duration: 1.2 }, 0.2)
+            .to(".hero-panel", { opacity: 1, y: 0, duration: 1.5 }, 0.4)
             .to(".hero-title-line", { yPercent: 0, duration: 1.2, stagger: 0.15 }, 0.6)
             .to(".hero-elem", { y: 0, opacity: 1, duration: 1, stagger: 0.1 }, 1.0);
 
-        // Bounce effect for scroll indicator
         gsap.to(".scroll-indicator", {
-            y: 10,
-            repeat: -1,
-            yoyo: true,
-            ease: "sine.inOut",
-            duration: 1.5,
-            delay: 2
+            y: 10, repeat: -1, yoyo: true, ease: "sine.inOut", duration: 1.5, delay: 2
         });
 
-        // --- B. Scroll Parallax Background Orbs ---
-        gsap.to("#orb1", {
-            yPercent: 30, ease: "none", scrollTrigger: { trigger: "body", start: "top top", end: "bottom top", scrub: 1 }
-        });
-        gsap.to("#orb2", {
-            yPercent: -40, ease: "none", scrollTrigger: { trigger: "body", start: "top top", end: "bottom top", scrub: 1.5 }
-        });
-        gsap.to("#orb3", {
-            yPercent: -20, ease: "none", scrollTrigger: { trigger: "body", start: "top top", end: "bottom top", scrub: 2 }
-        });
-
-        // --- C. Features Section Scroll Animations ---
-        gsap.set(".section-subtitle, .section-title", { yPercent: 100 });
-        ScrollTrigger.create({
-            trigger: ".section-header",
-            start: "top 80%",
-            animation: gsap.timeline({ defaults: { ease: "power4.out" } })
-                .to(".section-subtitle", { yPercent: 0, duration: 1 })
-                .to(".section-title", { yPercent: 0, duration: 1.2 }, "-=0.8")
-        });
-
-        const cards = gsap.utils.toArray('.feature-card');
-        cards.forEach((card, i) => {
+        // Parallax scroll on feature cards
+        gsap.utils.toArray('.animate-card').forEach(card => {
+            const speed = card.getAttribute('data-speed') || 1;
             gsap.fromTo(card, 
-                { y: 100, opacity: 0, scale: 0.98 },
+                { y: 80 * speed, opacity: 0 },
                 {
-                    scrollTrigger: { trigger: card, start: "top 85%" },
-                    y: 0, opacity: 1, scale: 1, duration: 1.2, ease: "power3.out", delay: (i % 2) * 0.1
+                    scrollTrigger: { trigger: card, start: "top 90%" },
+                    y: 0, opacity: 1, duration: 1.2, ease: "power3.out"
                 }
             );
         });
 
-        // --- D. About Section Animations ---
-        gsap.set(".about-title", { yPercent: 100 });
-        const aboutTl = gsap.timeline({
-            scrollTrigger: { trigger: ".about-content", start: "top 85%" }
+        // Generic Section Header Reveal
+        const headerTriggers = [
+            { header: ".section-header", sub: ".section-subtitle", title: ".section-title" },
+            { header: ".section-header-2", sub: ".section-subtitle-2", title: ".section-title-2" }
+        ];
+
+        headerTriggers.forEach(ht => {
+            gsap.set([ht.sub, ht.title], { yPercent: 100 });
+            ScrollTrigger.create({
+                trigger: ht.header,
+                start: "top 85%",
+                animation: gsap.timeline({ defaults: { ease: "power4.out" } })
+                    .to(ht.sub, { yPercent: 0, duration: 1 })
+                    .to(ht.title, { yPercent: 0, duration: 1.2 }, "-=0.8")
+            });
         });
 
-        aboutTl
-            .to(".about-title", { yPercent: 0, duration: 1.2, ease: "power4.out" })
-            .fromTo(".about-text", { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 1, ease: "power3.out" }, "-=0.8")
-            .fromTo(".tech-tag", 
-                { y: 20, opacity: 0 }, 
-                { y: 0, opacity: 1, duration: 0.8, stagger: 0.05, ease: "back.out(1.5)" }, 
-                "-=0.5"
-            );
-
-        // --- E. Footer Reveal ---
+        // Footer
         gsap.fromTo(".footer-content", 
             { y: 30, opacity: 0 },
-            {
-                scrollTrigger: { trigger: "footer", start: "top 95%" },
-                y: 0, opacity: 1, duration: 1, ease: "power3.out"
-            }
+            { scrollTrigger: { trigger: "footer", start: "top 95%" }, y: 0, opacity: 1, duration: 1, ease: "power3.out" }
         );
-
     </script>
 </body>
 </html>
