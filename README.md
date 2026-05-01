@@ -100,6 +100,7 @@ IOT_API_KEY=your_iot_api_key
 ```bash
 npm start          # production start
 npm run dev        # development with nodemon
+
 ```
 
 4. Seed the centralized security account (optional):
@@ -142,6 +143,7 @@ Run the test suite:
 
 ```bash
 npm test
+node test-iot.js 
 ```
 
 For integration tests with ESP32 simulation:
